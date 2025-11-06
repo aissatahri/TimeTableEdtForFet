@@ -1,0 +1,421 @@
+<!-- Messages d’alerte -->
+<div *ngIf="successMessage" class="alert success-alert">
+  <span>{{ successMessage }}</span>
+  <button class="close-alert" (click)="successMessage=''">×</button>
+</div>
+<div *ngIf="errorMessage" class="alert error-alert">
+  <span>{{ errorMessage }}</span>
+  <button class="close-alert" (click)="errorMessage=''">×</button>
+</div>
+<div class="toolbar no-print">
+  <!-- Loader global -->
+  <div *ngIf="loading || globalViewLoading" class="global-loader-overlay">
+    <div class="spinner"></div>
+    <div class="loader-text">{{ lang.getCurrentLanguage() === 'fr' ? 'Chargement...' : 'جاري التحميل...' }}</div>
+  </div>
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <h2>{{translations.title}}</h2>
+  </div>
+<!-- Modal is now handled by parent -->
+  <!-- Section Upload -->
+  <div class="upload-section">
+    <div class="upload">
+      <label>
+        {{translations.selectXmlFiles}}
+        <input type="file" 
+               accept=".xml" 
+               multiple
+               (change)="onMultipleFilesSelected($event)">
+      </label>
+    </div>
+  </div>
+  
+  <!-- Message d'erreur si le chargement échoue -->
+  <div class="error-message" *ngIf="loadError">
+    <h3>{{ lang.getCurrentLanguage() === 'fr' ? '⚠️ Erreur de chargement' : '⚠️ خطأ في التحميل' }}</h3>
+    <p *ngIf="lang.getCurrentLanguage() === 'fr'">
+      Les fichiers n'ont pas pu être chargés. Veuillez vérifier :
+    </p>
+    <p *ngIf="lang.getCurrentLanguage() === 'ar'">
+      تعذر تحميل الملفات. يرجى التحقق من:
+    </p>
+    <ul>
+      <li *ngIf="lang.getCurrentLanguage() === 'fr'">Les fichiers sont au format XML correct</li>
+      <li *ngIf="lang.getCurrentLanguage() === 'ar'">الملفات بتنسيق XML الصحيح</li>
+      
+      <li *ngIf="lang.getCurrentLanguage() === 'fr'">Le serveur backend est démarré (http://localhost:8081)</li>
+      <li *ngIf="lang.getCurrentLanguage() === 'ar'">خادم الواجهة الخلفية قيد التشغيل</li>
+      
+      <li *ngIf="lang.getCurrentLanguage() === 'fr'">Vous avez sélectionné les 3 fichiers requis</li>
+      <li *ngIf="lang.getCurrentLanguage() === 'ar'">قمت بتحديد الملفات الثلاثة المطلوبة</li>
+    </ul>
+  </div>
+  
+  <!-- Masquer les contrôles si erreur de chargement -->
+  <div class="controls-container compact-controls" *ngIf="!loadError">
+    <!-- Section 1: Mode de visualisation -->
+    <div class="control-section compact-section">
+      <div class="view-mode">
+        <label title="Voir tous les emplois des enseignants">
+          <input type="radio" name="viewMode" [(ngModel)]="viewMode" (change)="onViewModeChange()" value="teachers">
+          🧑‍🏫 {{translations.teacherSchedule}}
+          <div class="option-help">Voir tous les emplois des enseignants</div>
+        </label>
+        <label title="Voir tous les emplois des classes">
+          <input type="radio" name="viewMode" [(ngModel)]="viewMode" (change)="onViewModeChange()" value="subgroups">
+          🏫 {{translations.classSchedule}}
+          <div class="option-help">Voir tous les emplois des classes</div>
+        </label>
+        <label title="Voir tous les emplois des salles">
+          <input type="radio" name="viewMode" [(ngModel)]="viewMode" (change)="onViewModeChange()" value="rooms">
+          🏢 {{ lang.getCurrentLanguage() === 'fr' ? 'Emplois des salles' : 'جدول القاعات' }}
+          <div class="option-help">Voir tous les emplois des salles</div>
+        </label>
+        <label title="Voir les salles vacantes">
+          <input type="radio" name="viewMode" [(ngModel)]="viewMode" (change)="onViewModeChange()" value="vacant">
+          🕳️ {{translations.vacantRooms}}
+          <div class="option-help">Voir les salles vacantes</div>
+        </label>
+        <label title="Vue globale de tous les emplois du temps">
+          <input type="radio" name="viewMode" [(ngModel)]="viewMode" (change)="onViewModeChange()" value="global">
+          🌐 {{ lang.getCurrentLanguage() === 'fr' ? 'Vue globale' : 'العرض الشامل' }}
+          <div class="option-help">Vue globale de tous les emplois du temps</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Section 2: Options pour la vue globale -->
+    <div class="control-section compact-section" *ngIf="viewMode === 'global'">
+      <div class="global-options">
+        <label>
+          <input type="radio" name="globalOrientation" [(ngModel)]="globalViewOrientation" (change)="buildGlobalView()" value="teachersRows">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Enseignants en lignes' : 'الأساتذة في الصفوف' }}
+        </label>
+        <label>
+          <input type="radio" name="globalOrientation" [(ngModel)]="globalViewOrientation" (change)="buildGlobalView()" value="daysRows">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Jours en lignes' : 'الأيام في الصفوف' }}
+        </label>
+      </div>
+      <div class="export-section" *ngIf="!globalViewLoading && globalHeaders.length > 0">
+        <button class="export-btn" (click)="exportGlobalViewPdf()">
+          📄 {{ lang.getCurrentLanguage() === 'fr' ? 'Exporter PDF A3' : 'تصدير PDF A3' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 3: Sélection individuelle -->
+    <div class="control-section compact-section" *ngIf="viewMode === 'teachers' || viewMode === 'subgroups' || viewMode === 'rooms'">
+      
+      <select *ngIf="viewMode === 'teachers'" [(ngModel)]="selectedTeacher" (change)="showTimetable()">
+        <option value="">{{translations.selectTeacher}}</option>
+        <optgroup *ngFor="let subject of objectKeys(teachersBySubject)" [label]="subject">
+          <option *ngFor="let t of teachersBySubject[subject]" [value]="t">{{t}}</option>
+        </optgroup>
+      </select>
+
+      <select *ngIf="viewMode === 'subgroups'" [(ngModel)]="selectedSubgroup" (change)="showTimetable()">
+        <option value="">{{translations.selectClass}}</option>
+        <option *ngFor="let s of subgroups" [value]="s">{{s}}</option>
+      </select>
+
+      <select *ngIf="viewMode === 'rooms'" [(ngModel)]="selectedRoom" (change)="showTimetable()">
+        <option value="">{{ lang.getCurrentLanguage() === 'fr' ? 'Sélectionner une salle' : 'اختر قاعة' }}</option>
+        <option *ngFor="let r of rooms" [value]="r">{{r}}</option>
+      </select>
+    </div>
+
+    <!-- Section 3: Actions (boutons) - Visible pour teachers, subgroups, rooms et vacant -->
+    <div class="control-section compact-section" *ngIf="viewMode === 'teachers' || viewMode === 'subgroups' || viewMode === 'rooms' || viewMode === 'vacant'">
+      
+      <div class="actions">
+        <button (click)="showTimetable()">{{translations.displayButton}}</button>
+        <button (click)="print()">{{translations.printButton}}</button>
+        <button (click)="exportPdf()">{{translations.exportPdfButton}}</button>
+        <button (click)="exportPdfAll()" *ngIf="viewMode !== 'vacant'">{{translations.exportAllPdfButton}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Masquer le tableau si erreur de chargement -->
+<div id="timetable-print" class="timetable" 
+     [class.no-colors]="!enableColors" 
+     [style.--empty-cell-color]="emptyGrayColor"
+     [attr.dir]="currentLanguage === 'ar' ? 'rtl' : 'ltr'" 
+     *ngIf="!loadError">
+  <!-- En-tête officiel -->
+  <div class="official-header">
+    <!-- Logo importé par l'utilisateur ou emoji par défaut -->
+    <div class="header-center">
+      <div class="logo-container">
+     <img *ngIf="schoolInfo.logoUrl" [src]="schoolInfo.logoUrl" alt="Logo" class="ministry-logo"
+       [style.width]="schoolInfo.logoWidthCm ? (schoolInfo.logoWidthCm + 'cm') : (schoolInfo.logoSize + 'px')"
+       [style.height]="schoolInfo.logoHeightCm ? (schoolInfo.logoHeightCm + 'cm') : (schoolInfo.logoSize + 'px')">
+     <div *ngIf="!schoolInfo.logoUrl" class="flag"
+       [style.fontSize]="schoolInfo.logoHeightCm ? (schoolInfo.logoHeightCm + 'cm') : (Math.round(schoolInfo.logoSize * 0.8) + 'px')">🇲🇦</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Informations de l'établissement -->
+  <div class="establishment-info">
+    <div class="info-line" *ngIf="schoolInfo.academy || schoolInfo.direction || schoolInfo.establishment">
+      <span *ngIf="schoolInfo.academy">{{ schoolInfo.academy }}</span>
+      <span *ngIf="schoolInfo.academy && schoolInfo.direction"> – </span>
+      <span *ngIf="schoolInfo.direction">{{ schoolInfo.direction }}</span>
+      <span *ngIf="(schoolInfo.academy || schoolInfo.direction) && schoolInfo.establishment"> – </span>
+      <span *ngIf="schoolInfo.establishment">{{ schoolInfo.establishment }}</span>
+    </div>
+    <div class="info-line" *ngIf="!schoolInfo.academy && !schoolInfo.direction && !schoolInfo.establishment">
+      <em style="color: #999;">{{ lang.getCurrentLanguage() === 'fr' ? 'Cliquez sur "⚙️ Configuration" pour saisir les informations de l\'établissement' : 'انقر فوق "⚙️ الإعدادات" لإدخال معلومات المؤسسة' }}</em>
+    </div>
+  </div>
+  
+  <!-- Titre de l'emploi du temps -->
+  <h3 class="timetable-title">
+    <span *ngIf="viewMode === 'teachers' && selectedTeacher">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - ' : 'التوزيع الأسبوعي - ' }}
+      <strong>{{selectedTeacher}}</strong>
+      <span *ngIf="lang.getCurrentLanguage() === 'ar'"> - أستاذ(ة) مادة اللغة العربية</span>
+    </span>
+    <span *ngIf="viewMode === 'subgroups' && selectedSubgroup">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - ' : 'التوزيع الأسبوعي - ' }}
+      <strong>{{selectedSubgroup}}</strong>
+    </span>
+    <span *ngIf="viewMode === 'rooms' && selectedRoom">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - Salle ' : 'التوزيع الأسبوعي - القاعة ' }}
+      <strong>{{selectedRoom}}</strong>
+    </span>
+    <span *ngIf="viewMode === 'vacant'">
+      {{translations.vacantRooms}}
+    </span>
+    <span *ngIf="viewMode === 'global'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - Vue globale' : 'التوزيع الأسبوعي - العرض الشامل' }}
+    </span>
+  </h3>
+  
+  <!-- Année scolaire -->
+  <div class="school-year" *ngIf="viewMode !== 'global'">
+    {{ lang.getCurrentLanguage() === 'fr' ? 'Année scolaire' : 'الموسم الدراسي' }} {{ schoolInfo.schoolYear || '2024-2025' }}
+  </div>
+  
+  <!-- Tableau normal pour les vues individuelles -->
+  <table *ngIf="viewMode !== 'global'">
+    <thead>
+      <tr>
+        <th>{{translations.dayHour}}</th>
+        <th *ngFor="let ts of TIMESLOTS">{{ts}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of DAYS; let i = index">
+        <th>{{DAYS_DISPLAY[i]}}</th>
+        <ng-container *ngFor="let ts of TIMESLOTS; let ti = index">
+  <td *ngIf="cellMatrix[d] && cellMatrix[d][ti] && cellMatrix[d][ti].render"
+      [attr.colspan]="cellMatrix[d][ti].colspan"
+    [attr.style]="getCellStyleString(cellMatrix[d][ti].entries)"
+    [ngClass]="{ 'empty-cell': isEntriesEmpty(cellMatrix[d][ti].entries) }">
+            <div *ngIf="!isEntriesEmpty(cellMatrix[d][ti].entries)">
+              <div *ngFor="let cell of cellMatrix[d][ti].entries; let cellIdx = index" class="cell-entry">
+                <ng-container *ngIf="!isEntryEmpty(cell)">
+                  <ng-container *ngIf="viewMode === 'subgroups'">
+                    <strong>{{cell.subject}}</strong>
+                    <br>
+                    <!-- Truncate teacher names to 2 lines in class view -->
+                    <strong class="group-name" [ngClass]="{'truncate-2': true}">{{cell.teacher}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="viewMode === 'teachers'">
+                    <strong class="group-name">{{cell.subgroup}}</strong>
+                  </ng-container>
+                  <ng-container *ngIf="viewMode === 'rooms'">
+                    <strong class="group-name">{{cell.subgroup}}</strong>
+                    <br>
+                    <span>{{cell.subject}}</span>
+                    <br>
+                    <span>{{cell.teacher}}</span>
+                  </ng-container>
+                  <ng-container *ngIf="viewMode === 'vacant'">
+                    <strong class="group-name">{{cell.subgroup}}</strong>
+                  </ng-container>
+                  <div *ngIf="cell.room" class="room">{{cell.room}}</div>
+                  <hr *ngIf="cellIdx < cellMatrix[d][ti].entries.length - 1 && !isEntryEmpty(cellMatrix[d][ti].entries[cellIdx + 1])" />
+                </ng-container>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- Tableau global pour la vue globale -->
+  <div class="global-view-container" *ngIf="viewMode === 'global' && globalViewOrientation === 'teachersRows'">
+    <!-- Message de chargement -->
+    <div *ngIf="globalViewLoading" class="loading-message">
+      <p>{{ lang.getCurrentLanguage() === 'fr' ? '⏳ Chargement des données en cours...' : '⏳ جاري تحميل البيانات...' }}</p>
+    </div>
+    
+    <!-- Tableau seulement si les données sont chargées -->
+    <table class="global-table" *ngIf="!globalViewLoading && globalHeaders.length > 0">
+      <thead>
+        <!-- Ligne 1: Jours -->
+        <tr>
+          <th class="row-header" rowspan="2">
+            {{ lang.getCurrentLanguage() === 'fr' ? 'Enseignant(e)' : 'الأستاذ(ة)' }}
+          </th>
+          <th *ngFor="let dayHeader of globalHeaders" [attr.colspan]="8" class="day-header">
+            {{ dayHeader.day }}
+          </th>
+        </tr>
+        <!-- Ligne 2: Périodes (Matin / Après-midi) -->
+        <tr>
+          <ng-container *ngFor="let dayHeader of globalHeaders">
+            <th *ngFor="let period of dayHeader.periods" [attr.colspan]="4" class="period-header">
+              {{ period.label }}
+            </th>
+          </ng-container>
+        </tr>
+        <!-- Ligne 3: Numéros des créneaux (1, 2, 3, 4) -->
+        <tr>
+          <th class="row-header"><!-- Vide pour alignement --></th>
+          <ng-container *ngFor="let dayHeader of globalHeaders">
+            <ng-container *ngFor="let period of dayHeader.periods">
+              <th *ngFor="let slot of [1,2,3,4]" class="slot-number-header">
+                {{ slot }}
+              </th>
+            </ng-container>
+          </ng-container>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let rowHeader of globalRowHeaders; let rowIdx = index">
+          <th class="row-header">{{ rowHeader }}</th>
+          <ng-container *ngFor="let cellInfo of globalCellMatrix[rowIdx]; let colIdx = index">
+              <td *ngIf="cellInfo.render"
+        [attr.colspan]="cellInfo.colspan"
+        [attr.style]="getCellStyleString(cellInfo.data)"
+        [ngClass]="{ 'empty-cell': isEntriesEmpty(cellInfo.data) }">
+              <div *ngIf="!isEntriesEmpty(cellInfo.data)" class="cell-entry">
+                <div *ngFor="let entry of cellInfo.data; let i = index">
+                  <ng-container *ngIf="!isEntryEmpty(entry)">
+                    <strong>{{ entry.subgroup || '' }}</strong>
+                    <div class="subject">{{ entry.subject || '' }}</div>
+                    <div *ngIf="entry.room" class="room">{{ entry.room }}</div>
+                    <hr *ngIf="i < cellInfo.data.length - 1 && !isEntryEmpty(cellInfo.data[i + 1])" class="entry-separator" />
+                  </ng-container>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Tableau global pour l'option 2 (Jours en lignes) -->
+  <div class="global-view-container" *ngIf="viewMode === 'global' && globalViewOrientation === 'daysRows'">
+    <!-- Message de chargement -->
+    <div *ngIf="globalViewLoading" class="loading-message">
+      <p>{{ lang.getCurrentLanguage() === 'fr' ? '⏳ Chargement des données en cours...' : '⏳ جاري تحميل البيانات...' }}</p>
+    </div>
+    
+    <!-- Tableau seulement si les données sont chargées -->
+    <table class="global-table" *ngIf="!globalViewLoading && globalHeaders.length > 0">
+      <thead>
+        <tr>
+          <!-- Colonne pour les jours/périodes/heures (3 niveaux) -->
+          <th class="row-header" colspan="3">
+            {{ lang.getCurrentLanguage() === 'fr' ? 'Jour / Période / Heure' : 'اليوم / الفترة / الساعة' }}
+          </th>
+          <!-- Colonnes pour les enseignants -->
+          <th *ngFor="let teacher of globalHeaders" class="day-header">
+            {{ teacher }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let dayHeader of getDaysForDaysRows(); let dayIdx = index">
+          <ng-container *ngFor="let period of dayHeader.periods; let periodIdx = index">
+            <tr *ngFor="let slotNum of [1,2,3,4]; let slotIdx = index">
+              <!-- Jour (rowspan pour toutes les lignes du jour) -->
+              <th *ngIf="periodIdx === 0 && slotIdx === 0" 
+                  [attr.rowspan]="8" 
+                  class="day-header vertical-header">
+                {{ dayHeader.day }}
+              </th>
+              <!-- Période (rowspan pour les 4 heures de la période) -->
+              <th *ngIf="slotIdx === 0" 
+                  [attr.rowspan]="4" 
+                  class="period-header vertical-header">
+                {{ period.label }}
+              </th>
+              <!-- Numéro de l'heure -->
+              <th class="slot-number-header">{{ slotNum }}</th>
+              
+              <!-- Cellules de données pour chaque enseignant -->
+              <ng-container *ngFor="let cellInfo of globalCellMatrix[dayIdx * 8 + periodIdx * 4 + slotIdx]; let colIdx = index">
+        <td *ngIf="cellInfo.render"
+          [attr.rowspan]="cellInfo.rowspan || 1"
+          [attr.style]="getCellStyleString(cellInfo.data)"
+          [ngClass]="{ 'empty-cell': isEntriesEmpty(cellInfo.data) }">
+                  <div *ngIf="!isEntriesEmpty(cellInfo.data)" class="cell-entry">
+                    <div *ngFor="let entry of cellInfo.data; let i = index">
+                      <ng-container *ngIf="!isEntryEmpty(entry)">
+                        <strong>{{ entry.subgroup || '' }}</strong>
+                        <div class="subject">{{ entry.subject || '' }}</div>
+                        <div *ngIf="entry.room" class="room">{{ entry.room }}</div>
+                        <hr *ngIf="i < cellInfo.data.length - 1 && !isEntryEmpty(cellInfo.data[i + 1])" class="entry-separator" />
+                      </ng-container>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+            </tr>
+          </ng-container>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Tableau récapitulatif Matière / Enseignant pour la vue Classe (multi-colonnes) -->
+  <div class="class-summary" *ngIf="viewMode === 'subgroups' && selectedSubgroup">
+    <h4 class="summary-title">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Liste des enseignants par matière' : 'لائحة الأساتذة المسندين حسب المواد' }}
+    </h4>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <ng-container *ngFor="let i of [0,1,2]">
+            <th>{{ lang.getCurrentLanguage() === 'fr' ? 'Matière' : 'المادة' }}</th>
+            <th>{{ lang.getCurrentLanguage() === 'fr' ? 'Enseignant(e)' : 'الأستاذ(ة)' }}</th>
+          </ng-container>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of groupPairsForSummary(3)">
+          <ng-container *ngFor="let cell of row">
+            <td>{{ cell?.subject || '' }}</td>
+            <td>{{ cell?.teacher || '' }}</td>
+          </ng-container>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Pied de page avec classes et signature -->
+  <div class="footer-section" *ngIf="viewMode === 'teachers' && selectedTeacher">
+    <div class="classes-list">
+      <strong>{{ lang.getCurrentLanguage() === 'fr' ? 'Classes assignées :' : 'لائحة الأقسام المسندة للأستاذ(ة):' }}</strong>
+      <div class="classes-items">
+        <!-- Liste des classes extraites du planning -->
+        <span *ngFor="let cls of getTeacherClasses(); let i = index">
+          {{cls}}<span *ngIf="i < getTeacherClasses().length - 1"> + </span>
+        </span>
+      </div>
+    </div>
+    <div class="signature-section">
+      <div class="signature-box">
+        <span>{{ lang.getCurrentLanguage() === 'fr' ? 'Cachet et signature du directeur de l\'établissement' : 'خاتم و توقيع السيد مدير المؤسسة' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

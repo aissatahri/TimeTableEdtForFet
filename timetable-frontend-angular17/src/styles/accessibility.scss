@@ -1,0 +1,53 @@
+/*
+  Styles globaux pour le responsive, contraste, et accessibilité
+*/
+:root {
+  --main-bg: #f6f8fa;
+  --main-fg: #222;
+  --accent: #4676fa;
+  --header-bg: #fff;
+  --header-fg: #222;
+  --footer-bg: #fff;
+  --footer-fg: #888;
+  --font-size: 16px;
+}
+body, html {
+  background: var(--main-bg);
+  color: var(--main-fg);
+  font-size: var(--font-size);
+  font-family: 'Segoe UI', 'Cairo', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+@media (max-width: 900px) {
+  .app-header, .app-main, .app-footer {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .timetable {
+    font-size: 14px;
+  }
+}
+@media (max-width: 700px) {
+  .app-header, .app-main, .app-footer {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .timetable {
+    font-size: 13px;
+  }
+}
+.high-contrast {
+  --main-bg: #000;
+  --main-fg: #fff;
+  --header-bg: #222;
+  --header-fg: #fff;
+  --footer-bg: #222;
+  --footer-fg: #fff;
+}
+.large-font {
+  --font-size: 20px;
+}
+.small-font {
+  --font-size: 13px;
+}

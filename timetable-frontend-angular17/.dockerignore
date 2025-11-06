@@ -1,0 +1,13 @@
+# Fichier .dockerignore pour optimiser le build du frontend
+node_modules/
+dist/
+.angular/
+.git/
+.gitignore
+README.md
+*.md
+.env
+.DS_Store
+coverage/
+.vscode/
+.idea/

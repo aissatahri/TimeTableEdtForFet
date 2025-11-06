@@ -1,0 +1,331 @@
+<div class="school-config-container">
+  <div class="config-header">
+    <h2>{{ lang.getCurrentLanguage() === 'fr' ? 'Paramétrage' : 'الإعدادات' }}</h2>
+    <button class="btn-close" (click)="cancel()" title="Fermer">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="settings-tabs no-print">
+    <button [class.active]="activeTab==='school'" (click)="activeTab='school'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Établissement' : 'المؤسسة' }}
+    </button>
+    <button [class.active]="activeTab==='rename'" (click)="activeTab='rename'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Renommer' : 'إعادة التسمية' }}
+    </button>
+    <button [class.active]="activeTab==='print'" (click)="activeTab='print'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'PDF / Impression' : 'PDF / الطباعة' }}
+    </button>
+  </div>
+
+  <div class="config-content" [dir]="lang.getCurrentLanguage() === 'ar' ? 'rtl' : 'ltr'">
+    <ng-container *ngIf="activeTab==='school'">
+    <!-- Logo -->
+    <div class="form-group">
+      <label>
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Logo de l\'établissement' : 'شعار المؤسسة' }}
+      </label>
+      <div class="logo-upload">
+        <div class="logo-preview" *ngIf="logoPreview">
+          <img [src]="logoPreview" alt="Logo">
+          <button type="button" class="btn-remove-logo" (click)="removeLogo()">
+            {{ lang.getCurrentLanguage() === 'fr' ? 'Supprimer' : 'حذف' }}
+          </button>
+        </div>
+        <div class="logo-upload-btn" *ngIf="!logoPreview">
+          <input type="file" id="logoInput" accept="image/*" (change)="onLogoSelected($event)" style="display: none;">
+          <label for="logoInput" class="btn-upload">
+            📁 {{ lang.getCurrentLanguage() === 'fr' ? 'Choisir une image' : 'اختر صورة' }}
+          </label>
+          <small>{{ lang.getCurrentLanguage() === 'fr' ? 'PNG, JPG ou SVG' : 'PNG, JPG أو SVG' }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Taille du logo -->
+    <div class="form-group">
+      <label for="logoSize">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Taille du logo (px)' : 'حجم الشعار (بالبكسل)' }}
+      </label>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <input type="range" id="logoSize" min="60" max="180" step="5" [(ngModel)]="schoolInfo.logoSize" style="flex:1;">
+        <input type="number" min="60" max="180" step="5" [(ngModel)]="schoolInfo.logoSize" style="width:90px;">
+      </div>
+      <small style="color:#666;">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Astuce: 100 à 140 px convient généralement pour l\'en-tête.' : 'ملاحظة: بين 100 و 140 بكسل مناسب عادة للرأس.' }}
+      </small>
+    </div>
+
+    <!-- Dimensions en centimètres -->
+    <div class="form-group">
+      <label>
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Dimensions en centimètres' : 'الأبعاد بالسنتيمتر' }}
+      </label>
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="min-width:70px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Largeur' : 'العرض' }}</span>
+          <input type="number" min="5" max="20" step="0.1" [(ngModel)]="schoolInfo.logoWidthCm" style="width:100px;">
+          <span>cm</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="min-width:70px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Hauteur' : 'الارتفاع' }}</span>
+          <input type="number" min="1" max="10" step="0.1" [(ngModel)]="schoolInfo.logoHeightCm" style="width:100px;">
+          <span>cm</span>
+        </div>
+      </div>
+      <small style="color:#666;">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Ex: 11 cm (largeur) × 2 cm (hauteur) pour un bandeau horizontal' : 'مثال: 11 سم عرض × 2 سم ارتفاع لشعار أفقي' }}
+      </small>
+    </div>
+
+    <!-- Académie / Région / District -->
+    <div class="form-group">
+      <label for="academy">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Académie / Région / District' : 'الأكاديمية / المنطقة / المقاطعة' }}
+      </label>
+      <input 
+        type="text" 
+        id="academy" 
+        [(ngModel)]="schoolInfo.academy"
+        [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Ex: Académie Régionale de l\'Oriental' : 'مثال: الأكاديمية الجهوية للشرق'"
+      >
+    </div>
+
+    <!-- Direction / Délégation -->
+    <div class="form-group">
+      <label for="direction">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Direction / Délégation' : 'المديرية / النيابة' }}
+      </label>
+      <input 
+        type="text" 
+        id="direction" 
+        [(ngModel)]="schoolInfo.direction"
+        [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Ex: Direction Provinciale d\'Oujda-Angad' : 'مثال: المديرية الإقليمية وجدة أنجاد'"
+      >
+    </div>
+
+    <!-- Établissement -->
+    <div class="form-group">
+      <label for="establishment">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Nom de l\'établissement' : 'اسم المؤسسة' }}
+      </label>
+      <input 
+        type="text" 
+        id="establishment" 
+        [(ngModel)]="schoolInfo.establishment"
+        [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Ex: Collège Ibn Khaldoun' : 'مثال: ثانوية ابن خلدون الإعدادية'"
+      >
+    </div>
+
+    <!-- Année scolaire -->
+    <div class="form-group">
+      <label for="schoolYear">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Année scolaire' : 'الموسم الدراسي' }}
+      </label>
+      <input 
+        type="text" 
+        id="schoolYear" 
+        [(ngModel)]="schoolInfo.schoolYear"
+        [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Ex: 2024-2025' : 'مثال: 2024-2025'"
+      >
+      <small style="color:#666;">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Format: AAAA-AAAA (ex: 2024-2025)' : 'التنسيق: سنة-سنة (مثال: 2024-2025)' }}
+      </small>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="form-actions">
+      <button class="btn-save" (click)="save()">
+        {{ lang.getCurrentLanguage() === 'fr' ? '💾 Enregistrer' : '💾 حفظ' }}
+      </button>
+      <button class="btn-cancel" (click)="cancel()">
+        {{ lang.getCurrentLanguage() === 'fr' ? 'Annuler' : 'إلغاء' }}
+      </button>
+    </div>
+    </ng-container>
+
+    <!-- Tab Renommer -->
+    <ng-container *ngIf="activeTab==='rename'">
+      <app-rename-config [embedded]="true"></app-rename-config>
+    </ng-container>
+
+    <!-- Tab Impression -->
+    <ng-container *ngIf="activeTab==='print'">
+      <!-- En-tête PDF (jsPDF) -->
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'En-tête PDF (jsPDF)' : 'رأس PDF (jsPDF)' }}
+        </label>
+        <div style="display:grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap:12px; align-items:center;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-size:13px; color:#444;">{{ lang.getCurrentLanguage() === 'fr' ? 'Libellé à droite' : 'النص على اليمين' }}</span>
+            <select [(ngModel)]="printSettings.rightLabelFormat" style="padding:8px;">
+              <option value="nameOnly">{{ lang.getCurrentLanguage() === 'fr' ? 'Nom seulement' : 'الاسم فقط' }}</option>
+              <option value="nameWithSubjectAr">{{ lang.getCurrentLanguage() === 'fr' ? 'السيد(ة): [الاسم] — أستاذ(ة) مادة [المادة]' : 'السيد(ة): [الاسم] — أستاذ(ة) مادة [المادة]' }}</option>
+            </select>
+            <small style="color:#666;">{{ lang.getCurrentLanguage() === 'fr' ? 'S’applique à la vue Professeur; [المادة] est déduite automatiquement (matière la plus fréquente).' : 'تنطبق على عرض الأستاذ؛ يتم استنتاج [المادة] تلقائيًا (المادة الأكثر تكرارًا).' }}</small>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" [(ngModel)]="printSettings.invertYearAndName">
+              {{ lang.getCurrentLanguage() === 'fr' ? 'Inverser positions (Année ⇄ Nom)' : 'عكس المواضع (السنة ⇄ الاسم)' }}
+            </label>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:180px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Ajustement vertical (mm)' : 'الضبط العمودي (مم)' }}</span>
+            <input type="number" min="-10" max="10" step="1" [(ngModel)]="printSettings.headerYOffsetMm" style="width:100px;">
+            <span>mm</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Taille du logo à l\'impression' : 'حجم الشعار عند الطباعة' }}
+        </label>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" [(ngModel)]="printSettings.useDifferentLogoSize">
+            {{ lang.getCurrentLanguage() === 'fr' ? 'Utiliser une taille différente de l\'écran' : 'استخدام حجم مختلف عن الشاشة' }}
+          </label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:70px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Largeur' : 'العرض' }}</span>
+            <input type="number" min="5" max="25" step="0.1" [(ngModel)]="printSettings.printLogoWidthCm" [disabled]="!printSettings.useDifferentLogoSize" style="width:100px;">
+            <span>cm</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:70px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Hauteur' : 'الارتفاع' }}</span>
+            <input type="number" min="1" max="10" step="0.1" [(ngModel)]="printSettings.printLogoHeightCm" [disabled]="!printSettings.useDifferentLogoSize" style="width:100px;">
+            <span>cm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Marges PDF (par côté)' : 'هوامش PDF (لكل جانب)' }}
+        </label>
+        <div style="display:grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap:12px; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:90px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Haut' : 'أعلى' }}</span>
+            <input type="number" min="0" max="3" step="0.1" [(ngModel)]="printSettings.pdfMarginTopCm" style="width:100px;">
+            <span>cm</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:90px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Droite' : 'يمين' }}</span>
+            <input type="number" min="0" max="3" step="0.1" [(ngModel)]="printSettings.pdfMarginRightCm" style="width:100px;">
+            <span>cm</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:90px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Bas' : 'أسفل' }}</span>
+            <input type="number" min="0" max="3" step="0.1" [(ngModel)]="printSettings.pdfMarginBottomCm" style="width:100px;">
+            <span>cm</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:90px;">{{ lang.getCurrentLanguage() === 'fr' ? 'Gauche' : 'يسار' }}</span>
+            <input type="number" min="0" max="3" step="0.1" [(ngModel)]="printSettings.pdfMarginLeftCm" style="width:100px;">
+            <span>cm</span>
+          </div>
+        </div>
+        <small style="color:#666;">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Conseil: mettez une petite marge à droite (ex: 0.3 cm) pour gagner de l\'espace.' : 'نصيحة: اجعل الهامش الأيمن صغيرًا (مثلاً 0.3 سم) لزيادة المساحة.' }}
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Orientation de la page' : 'اتجاه الصفحة' }}
+        </label>
+        <select [(ngModel)]="printSettings.pdfOrientation" style="width:220px; padding:8px;">
+          <option value="landscape">{{ lang.getCurrentLanguage() === 'fr' ? 'Paysage (A4)' : 'أفقي (A4)' }}</option>
+          <option value="portrait">{{ lang.getCurrentLanguage() === 'fr' ? 'Portrait (A4)' : 'عمودي (A4)' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" [(ngModel)]="printSettings.forceOnePage">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Forcer à tenir sur une seule page (réduction automatique)' : 'فرض صفحة واحدة (تصغير تلقائي)' }}
+        </label>
+        <small style="color:#666;">{{ lang.getCurrentLanguage() === 'fr' ? 'Désactivez pour laisser le contenu s’étaler sur plusieurs pages.' : 'قم بإلغاء التفعيل للسماح بتقسيم المحتوى على صفحات متعددة.' }}</small>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Densité (qualité) PDF' : 'كثافة (جودة) PDF' }}
+        </label>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="range" min="1" max="3" step="0.1" [(ngModel)]="printSettings.pdfScale" style="flex:1;">
+          <input type="number" min="1" max="3" step="0.1" [(ngModel)]="printSettings.pdfScale" style="width:100px;">
+        </div>
+        <small style="color:#666;">{{ lang.getCurrentLanguage() === 'fr' ? '1.0 = plus rapide / 2.0 = plus net, plus lourd' : '1.0 = أسرع / 2.0 = أوضح لكنه أثقل' }}</small>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" [(ngModel)]="printSettings.legacyPdf">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Utiliser l’ancienne génération PDF (recommandé si affichage parfait)' : 'استخدام توليد PDF القديم (موصى به إذا كان العرض ممتازًا)' }}
+        </label>
+        <small style="color:#666;">{{ lang.getCurrentLanguage() === 'fr' ? 'Activez pour revenir au rendu qui fonctionnait le mieux auparavant.' : 'فعِّل للعودة إلى العرض الذي كان يعمل بشكل أفضل من قبل.' }}</small>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Couleurs à l\'impression' : 'الألوان عند الطباعة' }}
+        </label>
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" [(ngModel)]="printSettings.printColors">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Imprimer avec couleurs' : 'الطباعة بالألوان' }}
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Taille de police (PDF/Impression)' : 'حجم الخط (PDF/الطباعة)' }}
+        </label>
+        <select [(ngModel)]="printSettings.fontSize" style="width:220px; padding:8px;">
+          <option value="small">{{ lang.getCurrentLanguage() === 'fr' ? 'Petit' : 'صغير' }}</option>
+          <option value="medium">{{ lang.getCurrentLanguage() === 'fr' ? 'Moyen' : 'متوسط' }}</option>
+          <option value="large">{{ lang.getCurrentLanguage() === 'fr' ? 'Grand' : 'كبير' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Gris des cellules vides' : 'درجة رمادي للخلايا الفارغة' }}
+        </label>
+        <select [(ngModel)]="printSettings.emptyGray" style="width:220px; padding:8px;">
+          <option value="light">{{ lang.getCurrentLanguage() === 'fr' ? 'Clair' : 'فاتح' }}</option>
+          <option value="medium">{{ lang.getCurrentLanguage() === 'fr' ? 'Moyen' : 'متوسط' }}</option>
+          <option value="dark">{{ lang.getCurrentLanguage() === 'fr' ? 'Foncé' : 'غامق' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>{{ lang.getCurrentLanguage() === 'fr' ? 'Contraste des bordures' : 'تباين الحدود' }}</label>
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" [(ngModel)]="printSettings.thickBorders">
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Lignes épaisses (2px)' : 'خطوط سميكة (2px)' }}
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          {{ lang.getCurrentLanguage() === 'fr' ? 'Espacement interne des cellules (padding)' : 'التباعد الداخلي للخلايا (padding)' }}
+        </label>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="range" min="0.1" max="2" step="0.1" [(ngModel)]="printSettings.cellPaddingMm" style="flex:1;">
+          <input type="number" min="0.1" max="2" step="0.1" [(ngModel)]="printSettings.cellPaddingMm" style="width:100px;">
+          <span>mm</span>
+        </div>
+        <small style="color:#666;">
+          {{ lang.getCurrentLanguage() === 'fr' ? '0.3 mm = compact, 1.0 mm = plus aéré' : '0.3 مم = مضغوط، 1.0 مم = أكثر تباعدًا' }}
+        </small>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-save" (click)="savePrintSettings()">
+          {{ lang.getCurrentLanguage() === 'fr' ? '💾 Enregistrer (Impression)' : '💾 حفظ (الطباعة)' }}
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+// SOLUTION SIMPLE POUR L'ARABE - Remplacer la méthode exportPdf()
+
+async exportPdf(){ 
+  const el = document.getElementById('timetable-print'); 
+  if(!el) return; 
+  
+  // Ajouter mode PDF
+  el.classList.add('pdf-mode', 'force-arabic-fonts');
+  
+  // Forcer les polices système pour l'arabe (Tahoma fonctionne mieux)
+  const textElements = el.querySelectorAll('td, th, .cell-entry, .group-name, span, div, p');
+  textElements.forEach((element: any) => {
+    element.style.fontFamily = "'Tahoma', 'Arial Unicode MS', 'Microsoft Sans Serif', Arial, sans-serif";
+    
+    // Détecter et traiter l'arabe
+    if (element.textContent && /[\u0600-\u06FF\u0750-\u077F]/.test(element.textContent)) {
+      element.style.direction = 'rtl';
+      element.style.textAlign = 'center';
+      element.style.fontSize = '14px';
+      element.style.lineHeight = '1.5';
+      element.style.padding = '4px';
+    }
+  });
+  
+  // Attendre un peu pour que les styles s'appliquent
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Utiliser l'impression du navigateur (seule méthode fiable pour l'arabe)
+  window.print();
+  
+  // Nettoyer après 1 seconde
+  setTimeout(() => {
+    el.classList.remove('pdf-mode', 'force-arabic-fonts');
+  }, 1000);
+}

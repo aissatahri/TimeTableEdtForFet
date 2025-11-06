@@ -1,0 +1,189 @@
+.rename-config-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    
+    h2 {
+      color: #2c3e50;
+      margin: 0;
+    }
+    
+    .btn-close {
+      padding: 10px 20px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s;
+      
+      &:hover {
+        background: #c0392b;
+      }
+    }
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ecf0f1;
+
+    button {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      color: #7f8c8d;
+      transition: all 0.3s;
+
+      &:hover {
+        color: #3498db;
+      }
+
+      &.active {
+        color: #3498db;
+        border-bottom-color: #3498db;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .message {
+    padding: 12px;
+    margin-bottom: 20px;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .loader {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #7f8c8d;
+  }
+
+  .rename-table {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+
+    .table-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 200px;
+      gap: 10px;
+      padding: 15px 20px;
+      background: #34495e;
+      color: white;
+      font-weight: bold;
+
+      .col, .col-actions {
+        display: flex;
+        align-items: center;
+      }
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 200px;
+      gap: 10px;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ecf0f1;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #f8f9fa;
+      }
+
+      .col {
+        display: flex;
+        align-items: center;
+
+        &.original {
+          font-weight: 500;
+          color: #2c3e50;
+        }
+
+        input {
+          width: 100%;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+          transition: border-color 0.3s;
+
+          &:focus {
+            outline: none;
+            border-color: #3498db;
+          }
+        }
+      }
+
+      .col-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        .btn-save {
+          padding: 8px 16px;
+          background: #27ae60;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: background 0.3s;
+          white-space: nowrap;
+
+          &:hover {
+            background: #229954;
+          }
+        }
+
+        .btn-clear {
+          padding: 8px 12px;
+          background: #e74c3c;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: background 0.3s;
+          min-width: 32px;
+
+          &:hover {
+            background: #c0392b;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Support RTL pour l'arabe
+[dir="rtl"] {
+  .rename-config-container {
+    .tabs {
+      direction: rtl;
+    }
+
+    .rename-table {
+      direction: rtl;
+    }
+  }
+}

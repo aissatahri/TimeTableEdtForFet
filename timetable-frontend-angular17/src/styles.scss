@@ -1,0 +1,102 @@
+@import './styles/animations.scss';
+@import './styles/accessibility.scss';
+/* Polices universelles avec support arabe complet */
+body { 
+    font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Segoe UI', system-ui, 'Tahoma', Arial, sans-serif; 
+    margin: 0; 
+    background:#f6f8fb;
+    /* Support complet Unicode pour l'arabe */
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Force le rendu des polices */
+    font-display: swap;
+}
+
+/* App layout */
+.app-header {
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 16px;
+	background: #0d6efd;
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.app-header .brand { font-weight: 700; cursor: pointer; }
+.app-header .menu { display: flex; gap: 16px; }
+.app-header .menu a { color: #fff; text-decoration: none; font-weight: 500; }
+.app-header .menu a:hover { text-decoration: underline; }
+.app-header .lang button {
+	margin-left: 8px;
+	padding: 6px 10px;
+	border-radius: 4px;
+	border: 1px solid rgba(255,255,255,0.7);
+	background: transparent;
+	color: #fff;
+	cursor: pointer;
+}
+.app-header .lang button.active { background: rgba(255,255,255,0.2); }
+
+.app-main { padding: 16px; max-width: 1280px; margin: 0 auto; }
+
+.app-footer {
+	padding: 16px;
+	background: #ffffff;
+	border-top: 1px solid #e5e7eb;
+	color: #6b7280;
+	text-align: center;
+}
+
+/* Respect RTL */
+[dir="rtl"] .app-header { direction: rtl; }
+[dir="rtl"] .app-header .menu { flex-direction: row-reverse; }
+[dir="rtl"] .app-header .lang button { margin-left: 0; margin-right: 8px; }
+
+/* Styles spéciaux pour l'arabe - amélioration PDF */
+* {
+    /* Assurer le bon rendu des caractères arabes partout */
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1;
+}
+
+/* Styles spécifiques pour les éléments contenant de l'arabe */
+.arabic-text, 
+[lang="ar"], 
+[dir="rtl"] {
+    font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma', 'Segoe UI', Arial, sans-serif !important;
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1, 'ccmp' 1;
+    text-rendering: optimizeLegibility;
+    unicode-bidi: embed;
+    letter-spacing: 0.03em;
+    line-height: 1.7;
+    font-weight: 400;
+    font-display: swap;
+}
+
+/* Amélioration spécifique pour le rendu PDF */
+@media print {
+    * {
+        font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1 !important;
+        text-rendering: optimizeLegibility !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+    
+    /* Forcer les polices arabes en PDF */
+    .arabic-text, 
+    [lang="ar"], 
+    [dir="rtl"],
+    .pdf-mode *,
+    .force-arabic-fonts * {
+        font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma', 'Segoe UI', Arial, sans-serif !important;
+        unicode-bidi: embed !important;
+        letter-spacing: 0.03em !important;
+        font-weight: 400 !important;
+        font-display: swap !important;
+        text-rendering: optimizeLegibility !important;
+    }
+}

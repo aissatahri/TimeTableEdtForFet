@@ -1,0 +1,68 @@
+/*
+  Sidebar styles for navigation
+*/
+.sidebar-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  background: #2d3a4b;
+  color: #fff;
+  z-index: 1000;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  transform: translateX(-100%);
+}
+.sidebar-nav.open {
+  transform: translateX(0);
+}
+.sidebar-nav .sidebar-header {
+  font-size: 1.3em;
+  font-weight: bold;
+  padding: 24px 20px 12px 20px;
+  border-bottom: 1px solid #223;
+}
+.sidebar-nav .sidebar-links {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 0 0 0;
+}
+.sidebar-nav .sidebar-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-size: 1.08em;
+  transition: background 0.2s;
+}
+.sidebar-nav .sidebar-links a.active,
+.sidebar-nav .sidebar-links a:hover {
+  background: #4676fa;
+}
+.sidebar-nav .sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #223;
+  font-size: 0.95em;
+  color: #bbb;
+}
+.sidebar-nav .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+@media (max-width: 700px) {
+  .sidebar-nav {
+    width: 90vw;
+    min-width: 0;
+  }
+}

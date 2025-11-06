@@ -1,0 +1,96 @@
+<div class="rename-config-container">
+  <div class="header" *ngIf="!embedded">
+    <h2>{{ lang.getCurrentLanguage() === 'fr' ? 'Configuration des renommages' : 'إعدادات إعادة التسمية' }}</h2>
+    <button class="btn-close" (click)="close.emit()">
+      {{ lang.getCurrentLanguage() === 'fr' ? '✕ Fermer' : '✕ إغلاق' }}
+    </button>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'teachers'" 
+      (click)="activeTab = 'teachers'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Professeurs' : 'الأساتذة' }}
+    </button>
+    <button 
+      [class.active]="activeTab === 'rooms'" 
+      (click)="activeTab = 'rooms'">
+      {{ lang.getCurrentLanguage() === 'fr' ? 'Salles' : 'القاعات' }}
+    </button>
+  </div>
+
+  <!-- Message de confirmation -->
+  <div class="message" *ngIf="message">{{ message }}</div>
+
+  <!-- Loader -->
+  <div class="loader" *ngIf="loading">
+    {{ lang.getCurrentLanguage() === 'fr' ? 'Chargement...' : 'جاري التحميل...' }}
+  </div>
+
+  <!-- Table Professeurs -->
+  <div class="rename-table" *ngIf="activeTab === 'teachers' && !loading">
+    <div class="table-header">
+      <div class="col">{{ lang.getCurrentLanguage() === 'fr' ? 'Nom original' : 'الاسم الأصلي' }}</div>
+      <div class="col">{{ lang.getCurrentLanguage() === 'fr' ? 'Nouveau nom' : 'الاسم الجديد' }}</div>
+      <div class="col-actions">{{ lang.getCurrentLanguage() === 'fr' ? 'Actions' : 'الإجراءات' }}</div>
+    </div>
+    
+    <div class="table-row" *ngFor="let teacher of teachers">
+      <div class="col original">{{ teacher.original }}</div>
+      <div class="col">
+        <input 
+          type="text" 
+          [(ngModel)]="teacher.renamed" 
+          [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Laisser vide pour garder l\'original' : 'اترك فارغًا للاحتفاظ بالأصل'"
+          (keyup.enter)="saveTeacher(teacher)">
+      </div>
+      <div class="col-actions">
+        <button 
+          class="btn-save" 
+          (click)="saveTeacher(teacher)">
+          {{ lang.getCurrentLanguage() === 'fr' ? '✓ Enregistrer' : '✓ حفظ' }}
+        </button>
+        <button 
+          class="btn-clear" 
+          *ngIf="teacher.renamed" 
+          (click)="clearTeacher(teacher)">
+          {{ lang.getCurrentLanguage() === 'fr' ? '✗' : '✗' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Salles -->
+  <div class="rename-table" *ngIf="activeTab === 'rooms' && !loading">
+    <div class="table-header">
+      <div class="col">{{ lang.getCurrentLanguage() === 'fr' ? 'Nom original' : 'الاسم الأصلي' }}</div>
+      <div class="col">{{ lang.getCurrentLanguage() === 'fr' ? 'Nouveau nom' : 'الاسم الجديد' }}</div>
+      <div class="col-actions">{{ lang.getCurrentLanguage() === 'fr' ? 'Actions' : 'الإجراءات' }}</div>
+    </div>
+    
+    <div class="table-row" *ngFor="let room of rooms">
+      <div class="col original">{{ room.original }}</div>
+      <div class="col">
+        <input 
+          type="text" 
+          [(ngModel)]="room.renamed" 
+          [placeholder]="lang.getCurrentLanguage() === 'fr' ? 'Laisser vide pour garder l\'original' : 'اترك فارغًا للاحتفاظ بالأصل'"
+          (keyup.enter)="saveRoom(room)">
+      </div>
+      <div class="col-actions">
+        <button 
+          class="btn-save" 
+          (click)="saveRoom(room)">
+          {{ lang.getCurrentLanguage() === 'fr' ? '✓ Enregistrer' : '✓ حفظ' }}
+        </button>
+        <button 
+          class="btn-clear" 
+          *ngIf="room.renamed" 
+          (click)="clearRoom(room)">
+          {{ lang.getCurrentLanguage() === 'fr' ? '✗' : '✗' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

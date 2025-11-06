@@ -1,0 +1,20 @@
+﻿# Backend
+backend/target/
+backend/.mvn/
+backend/data/sessions/
+backend/*.log
+
+# Frontend
+timetable-frontend-angular17/node_modules/
+timetable-frontend-angular17/dist/
+timetable-frontend-angular17/.angular/
+timetable-frontend-angular17/coverage/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

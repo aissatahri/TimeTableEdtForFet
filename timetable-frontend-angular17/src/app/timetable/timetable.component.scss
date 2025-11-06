@@ -1,0 +1,1233 @@
+/* Alignement à droite pour l'arabe */
+[dir="rtl"] td, [dir="rtl"] th {
+    text-align: right;
+}
+// 24 pastel color classes for timetable cells
+.color-cell-0  { background: #ffe6e6 !important; }
+.color-cell-1  { background: #e6f7ff !important; }
+.color-cell-2  { background: #e6ffe6 !important; }
+.color-cell-3  { background: #fffbe6 !important; }
+.color-cell-4  { background: #f0e6ff !important; }
+.color-cell-5  { background: #e6fff7 !important; }
+.color-cell-6  { background: #ffe6fa !important; }
+.color-cell-7  { background: #e6eaff !important; }
+.color-cell-8  { background: #f9ffe6 !important; }
+.color-cell-9  { background: #e6fff0 !important; }
+.color-cell-10 { background: #ffe6f2 !important; }
+.color-cell-11 { background: #e6f9ff !important; }
+.color-cell-12 { background: #f6ffe6 !important; }
+.color-cell-13 { background: #e6f0ff !important; }
+.color-cell-14 { background: #fbe6ff !important; }
+.color-cell-15 { background: #e6fff9 !important; }
+.color-cell-16 { background: #fff6e6 !important; }
+.color-cell-17 { background: #e6ffe6 !important; }
+.color-cell-18 { background: #e6e6ff !important; }
+.color-cell-19 { background: #f6e6ff !important; }
+.color-cell-20 { background: #e6fff6 !important; }
+.color-cell-21 { background: #ffe6e6 !important; }
+.color-cell-22 { background: #e6f6ff !important; }
+.color-cell-23 { background: #f6ffe6 !important; }
+// Palette de couleurs pastels pour matières/enseignants
+.cell-colored {
+    color: #222;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 2px 4px;
+    transition: background 0.2s;
+}
+.cell-colored.bg-0 { background: #ffe6e6; }
+.cell-colored.bg-1 { background: #e6f7ff; }
+.cell-colored.bg-2 { background: #e6ffe6; }
+.cell-colored.bg-3 { background: #fffbe6; }
+.cell-colored.bg-4 { background: #f0e6ff; }
+.cell-colored.bg-5 { background: #e6fff7; }
+.cell-colored.bg-6 { background: #ffe6fa; }
+.cell-colored.bg-7 { background: #e6eaff; }
+.cell-colored.bg-8 { background: #f9ffe6; }
+.cell-colored.bg-9 { background: #e6fff0; }
+.alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-radius: 7px;
+    margin: 18px auto 8px auto;
+    max-width: 600px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    font-weight: 500;
+}
+.success-alert {
+    background: #e6fbe6;
+    color: #217a2b;
+    border: 1.5px solid #7be27b;
+}
+.error-alert {
+    background: #fff2f2;
+    color: #b30000;
+    border: 1.5px solid #ffb3b3;
+}
+.close-alert {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: inherit;
+    cursor: pointer;
+    margin-left: 18px;
+}
+.global-loader-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.7);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.spinner {
+    width: 54px;
+    height: 54px;
+    border: 6px solid #e0e0e0;
+    border-top: 6px solid #4676fa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 18px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.loader-text {
+    font-size: 1.2em;
+    color: #4676fa;
+    font-weight: 500;
+}
+.option-help {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+.timetable {
+    margin-top: 12px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    width: 100%;
+    overflow-x: auto; /* scroll horizontal sur petits écrans */
+    
+    // Mode sans couleurs - les cellules vides utilisent la couleur de la palette
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* répartir les colonnes uniformément */
+    font-size: 15px; /* augmenté pour meilleure lisibilité */
+    /* Support amélioré pour l'arabe avec plusieurs polices de fallback */
+    font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma', 'Segoe UI', Arial, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1, 'ccmp' 1;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+th, td {
+                /* multi-line truncation helper */
+                .truncate-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    line-clamp: 2; /* standard */
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: normal;
+                }
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: center;
+                    padding: 6px; /* réduire l'espacement pour plus de contenu */
+    word-wrap: break-word; /* retour à la ligne si long */
+                    min-width: 90px; /* réduire la largeur minimale */
+
+    .cell-entry {
+        .group-name {
+            font-size: 1em; /* augmenté */
+                        strong { font-size: 1em; } /* augmenté */
+            color: #2c3e50;
+                            font-size: 0.95em; /* légèrement augmenté */
+            margin: 2px 0;
+        }
+
+        .room {
+            color: #7f8c8d;
+            background: #f7f9fc;
+            padding: 1px 4px;
+            border-radius: 3px;
+            display: block;
+            margin: 0;
+            line-height: 1;
+            font-size: 12px; /* augmenté pour meilleure lisibilité */
+        }
+    }
+}
+
+/* Fond blanc par défaut uniquement pour les en-têtes */
+th {
+    background: white;
+}
+
+th {
+    background: #f3f6ff;
+}
+
+
+.upload-section {
+    margin-bottom: 20px;
+}
+
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.control-section {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    
+    .section-title {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 8px;
+    }
+}
+
+.export-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.export-btn {
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.language-selector {
+            white-space: normal; /* permet le retour à la ligne */
+            word-break: break-word;
+            overflow-wrap: anywhere;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+
+    label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    button {
+        padding: 6px 16px;
+        border: 2px solid #007bff;
+        border-radius: 4px;
+        background: white;
+        color: #007bff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+
+        &:hover {
+            background: #e7f1ff;
+        }
+
+        &.active {
+            background: #007bff;
+            color: white;
+        }
+    }
+}
+
+.upload {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+
+    label {
+        padding: 8px 16px;
+        background: #f8f9fa;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            border-color: #007bff;
+            background: #e9ecef;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    }
+}
+
+.error-message {
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+    
+    h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #d9534f;
+        font-size: 18px;
+    }
+    
+    p {
+        margin: 10px 0;
+        font-weight: 500;
+    }
+    
+    ul {
+        margin: 10px 0;
+        padding-left: 20px;
+        
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    }
+}
+
+.controls {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    /* Petit tableau récapitulatif sous le tableau principal (vue Classe) */
+    .class-summary {
+        margin-top: 10px;
+        page-break-inside: avoid;
+        .summary-title { margin: 6px 0; font-size: 13px; text-align: center; font-weight: 600; }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            th, td { border: 1px solid #000; padding: 4px 6px; text-align: center; }
+        }
+    }
+
+    gap: 12px;
+}
+
+.view-mode {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+}
+
+.no-print button {
+    margin-left: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    
+    &:hover {
+        background: #0056b3;
+    }
+}
+
+/* Horizontal actions row for buttons */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    button {
+        margin: 0; // Enlever les marges individuelles
+    }
+    
+    .btn-rename {
+        background: #9b59b6;
+        
+        &:hover {
+            background: #8e44ad;
+        }
+    }
+    
+    .btn-backend-pdf {
+        background: #e67e22 !important;
+        font-weight: bold;
+        
+        &:hover {
+            background: #d35400 !important;
+        }
+    }
+}
+
+select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    min-width: 260px;
+    
+    optgroup {
+        font-weight: bold;
+        color: #2c3e50;
+        background-color: #f8f9fa;
+        
+        option {
+            font-weight: normal;
+            color: #000;
+            background-color: #fff;
+            padding: 4px;
+        }
+    }
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+    /* Forcer la taille page A4 paysage et éviter la coupure du tableau */
+    @page { size: A4 landscape; margin: 10mm; }
+    .timetable { page-break-inside: avoid; }
+    /* batch export: 2 emplois par page */
+    .pdf-batch .pdf-sheet { page-break-after: always; }
+    .pdf-batch .pdf-sheet:last-child { page-break-after: avoid; }
+    .pdf-page { page-break-inside: avoid !important; break-inside: avoid-page; }
+}
+
+/* Mode compact pour génération PDF: réduire polices et espacements */
+.pdf-mode {
+    font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma', 'Segoe UI', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Configuration avancée pour l'arabe dans les PDF */
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1, 'ccmp' 1;
+    text-rendering: optimizeLegibility;
+    /* Support directionnel complet */
+    unicode-bidi: bidi-override;
+    direction: ltr; /* par défaut LTR, sera surchargé par dir="rtl" si nécessaire */
+    background: #ffffff; /* fond blanc propre pour PDF */
+    font-display: swap;
+    font-weight: 400;
+    .timetable { 
+        padding: 8px; 
+        overflow: visible !important; /* pas de barre de défilement dans le PDF */
+        box-shadow: none !important; /* fond propre dans le PDF */
+    }
+    table { 
+        font-size: 13px; /* augmenté pour PDF */
+        width: 100%;
+        table-layout: fixed;
+    }
+    th, td { 
+        padding: 4px; 
+        min-width: 70px;
+        font-size: 12px; /* augmenté pour PDF */
+        line-height: 1.4; /* augmenté pour l'arabe */
+        word-break: normal; /* empêcher coupure des mots */
+        overflow-wrap: normal; /* ne pas couper les mots arbitrairement */
+        /* Configuration complète pour l'arabe */
+        font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1;
+        text-rendering: optimizeLegibility;
+        /* Support bidirectionnel */
+        unicode-bidi: embed;
+        /* Préserver les espaces pour l'arabe */
+        white-space: pre-wrap;
+    }
+    .no-print button { display: none; }
+    hr { display: none; }
+    h3 { font-size: 15px; margin: 4px 0; } /* augmenté */
+    .cell-entry {
+        font-size: 12px; /* augmenté */
+        line-height: 1.5; /* augmenté pour l'arabe */
+        word-break: keep-all; /* ne pas couper les mots */
+        /* Support complet pour l'arabe */
+        font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1;
+        text-rendering: optimizeLegibility;
+        unicode-bidi: embed;
+        /* Préserver l'espacement des caractères arabes */
+        letter-spacing: 0.02em;
+    }
+
+    /* Empêcher l'espace interligne supplémentaire avant le nom de la salle */
+    .cell-entry .room {
+        display: block; /* nouvelle ligne sans <br> */
+        margin: 0;
+        padding: 0;
+        line-height: 1.1; /* léger espace pour éviter chevauchement */
+        font-size: 11px; /* augmenté pour PDF */
+    }
+
+    /* Assurer une ligne dédiée pour le libellé principal avant la salle (prof/classe) */
+    .cell-entry .group-name {
+        display: block;
+        margin: 0;
+        padding: 0;
+        line-height: 1.4; /* augmenté pour l'arabe */
+        word-break: keep-all; /* ne pas couper les mots */
+        white-space: normal; /* permettre retour à la ligne naturel */
+        /* Support complet pour les noms arabes */
+        font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1;
+        text-rendering: optimizeLegibility;
+        unicode-bidi: embed;
+        /* Espacement pour les caractères arabes */
+        letter-spacing: 0.01em;
+    }
+
+    /* Variantes de taille de police */
+    &.pdf-font-small {
+        table { font-size: 10px; }
+        th, td, .cell-entry { font-size: 9.5px; }
+        h3 { font-size: 12px; }
+    }
+    &.pdf-font-large {
+        table { font-size: 14px; }
+        th, td, .cell-entry { font-size: 13px; }
+        h3 { font-size: 16px; }
+    }
+}
+
+/* Mode encore plus compact pour 2 par page */
+.pdf-two {
+    .timetable { padding: 4px; }
+    table { font-size: 10px; }
+    th, td { padding: 3px; min-width: 70px; }
+}
+
+/* Noir et blanc à l'impression/PDF (force désactivation des couleurs de matières) */
+.timetable.bw-print .cell-entry {
+    background: #ffffff !important;
+}
+.timetable.bw-print {
+    filter: grayscale(100%);
+}
+
+/* Responsive: réduire tailles sur petits écrans */
+@media (max-width: 992px) {
+    table { font-size: 13px; }
+    th, td { padding: 6px; min-width: 90px; }
+}
+@media (max-width: 768px) {
+    table { font-size: 12px; }
+    th, td { padding: 5px; min-width: 80px; }
+    .controls { gap: 8px; }
+}
+@media (max-width: 576px) {
+    table { font-size: 11px; }
+    th, td { padding: 4px; min-width: 70px; }
+    .view-mode { flex-direction: column; gap: 8px; }
+}
+/* Cellules vides: couleur grise par défaut */
+.empty-cell {
+    background: #e0e0e0;
+    color: #000; /* texte lisible sur fond gris */
+}
+
+/* Variants de gris - non utilisés, remplacés par la palette */
+
+/* Bordures épaisses (inspiré du modèle officiel) */
+.thick-borders table { border: 2px solid #000; }
+.thick-borders th, .thick-borders td { border-width: 2px; }
+
+/* Classe pour forcer les polices arabes lors de l'export PDF */
+.force-arabic-fonts {
+    * {
+        font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma', 'Segoe UI', Arial, sans-serif !important;
+        font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1, 'mark' 1, 'mkmk' 1, 'ccmp' 1 !important;
+        text-rendering: optimizeLegibility !important;
+        unicode-bidi: embed !important;
+        letter-spacing: 0.03em !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        font-display: swap !important;
+        font-weight: 400 !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Styles spéciaux pour les cellules de tableau en PDF */
+    table, th, td, .cell-entry, .group-name {
+        font-family: 'Cairo', 'Tajawal', 'Almarai', 'Noto Naskh Arabic', 'Amiri', 'Arabic Fallback', 'Tahoma' !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.04em !important;
+    }
+}
+// RTL support for Arabic
+[dir="rtl"] {
+    .toolbar, .controls, .view-mode, .language-selector, .upload {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .no-print button {
+        margin-left: 0;
+        margin-right: 8px;
+    }
+
+    select {
+        text-align: right;
+        direction: rtl;
+    }
+
+    table {
+        direction: rtl;
+    }
+
+    th, td {
+        text-align: center;
+    }
+}
+
+// LTR support for French (default)
+[dir="ltr"] {
+    .toolbar, .controls, .view-mode, .language-selector, .upload {
+        direction: ltr;
+        text-align: left;
+    }
+}
+
+/* Official Document Styling - Moroccan Ministry Format */
+.official-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 2px solid #000;
+    margin-bottom: 10px;
+    
+    .header-center {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            .ministry-logo {
+                object-fit: contain;
+                display: block;
+            }
+            
+            .flag {
+                font-size: 48px;
+                display: block;
+            }
+        }
+    }
+}
+
+.establishment-info {
+    text-align: center;
+    font-size: 12px;
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.timetable-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    margin-bottom: 10px;
+    
+    .teacher-name, .class-name {
+        font-size: 18px;
+        color: #000;
+        display: inline;
+    }
+}
+
+.school-year {
+    text-align: right;
+    font-size: 13px;
+    padding: 8px 20px;
+    margin-bottom: 10px;
+    direction: rtl;
+}
+
+.footer-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px 20px;
+    margin-top: 20px;
+    border-top: 2px solid #000;
+    page-break-inside: avoid;
+    
+    .classes-list {
+        flex: 2;
+        
+        h4 {
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .classes {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    }
+    
+    .signature-section {
+        flex: 1;
+        text-align: center;
+        
+        .signature-label {
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .signature-box {
+            border: 1px solid #000;
+            min-height: 80px;
+            padding: 10px;
+            background: #fff;
+        }
+    }
+}
+
+/* Print-specific adjustments for official document */
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 0.5cm;
+    }
+    
+    * {
+        font-family: 'Tahoma', 'Arial Unicode MS', 'Microsoft Sans Serif', Arial, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-sizing: border-box !important;
+    }
+    
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 11px !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    
+    // Masquer tout sauf le contenu principal
+    body > *:not(.main-container):not(app-root) {
+        display: none !important;
+    }
+    
+    app-root > *:not(app-timetable) {
+        display: none !important;
+    }
+    
+    // Forcer tout le contenu sur une seule page
+    * {
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    
+    // DOCUMENT OFFICIEL : Corps de page propre
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    // Masquer complètement Angular et les éléments de framework
+    app-root > *:not(app-timetable),
+    router-outlet,
+    .ng-trigger,
+    .cdk-overlay-container,
+    .mat-drawer-container,
+    .mat-sidenav-container {
+        display: none !important;
+    }
+    
+    .timetable {
+        margin: 0 !important;
+        padding: 5px !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        page-break-inside: avoid !important;
+        transform: scale(0.85) !important;
+        transform-origin: top left !important;
+    }
+    
+    .official-header {
+        border-bottom: 1px solid #000 !important;
+        page-break-after: avoid !important;
+        margin-bottom: 5px !important;
+        font-size: 12px !important;
+        height: auto !important;
+    }
+    
+    .establishment-info {
+        page-break-after: avoid !important;
+        margin-bottom: 3px !important;
+        font-size: 11px !important;
+    }
+    
+    .timetable-title {
+        page-break-after: avoid !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        margin: 5px 0 !important;
+    }
+    
+    .footer-section {
+        page-break-before: avoid !important;
+        border-top: 1px solid #000 !important;
+        margin-top: 5px !important;
+        font-size: 10px !important;
+        height: auto !important;
+    }
+    
+    table {
+        page-break-inside: avoid !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        font-size: 9px !important;
+        margin: 0 !important;
+        table-layout: fixed !important;
+    }
+    
+    td, th {
+        border: 1px solid #000 !important;
+        padding: 2px 1px !important;
+        font-size: 9px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        line-height: 1.1 !important;
+        word-wrap: break-word !important;
+        overflow: hidden !important;
+        
+        // Spécial pour l'arabe
+        &[dir="rtl"], &.arabic-text {
+            direction: rtl !important;
+            font-family: 'Tahoma', 'Arial Unicode MS' !important;
+            font-size: 10px !important;
+            line-height: 1.2 !important;
+        }
+    }
+    
+    // Première colonne (heures) plus étroite
+    td:first-child, th:first-child {
+        width: 10% !important;
+        font-size: 8px !important;
+    }
+    
+    // Autres colonnes égales
+    td:not(:first-child), th:not(:first-child) {
+        width: 15% !important;
+    }
+    
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        height: auto !important;
+    }
+    
+    // MASQUER ABSOLUMENT TOUT L'INTERFACE pour document officiel
+    .controls, button, .export-section, .btn, .form-group,
+    nav, header, footer, .navbar, .menu, .sidebar,
+    .router-outlet, .ng-sidebar, .navigation,
+    app-header, app-footer, app-nav, .mat-toolbar,
+    .mat-button, .mat-raised-button, .mat-fab, .mat-mini-fab,
+    .top-bar, .menu-bar, .toolbar, .action-bar,
+    .form-control, select, input, textarea,
+    .dropdown, .select, .checkbox, .radio,
+    .file-upload, .upload-section, .language-switcher,
+    .config-section, .settings, .options,
+    h1, h2, h3, h4, h5, h6:not(.timetable-title):not(.official-header *),
+    p:not(.official-header *):not(.footer-section *):not(.establishment-info *),
+    div:not(#timetable-print):not(#timetable-print *):not(.timetable):not(.timetable *) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    // SEULS éléments autorisés : contenu officiel du tableau
+    #timetable-print, 
+    #timetable-print *,
+    .timetable,
+    .timetable *,
+    .official-header,
+    .official-header *,
+    .establishment-info,
+    .establishment-info *,
+    .timetable-title,
+    .footer-section,
+    .footer-section *,
+    table,
+    table *,
+    thead, tbody, tfoot, tr, td, th {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    // Remettre l'affichage correct pour les éléments de tableau
+    table { display: table !important; }
+    thead { display: table-header-group !important; }
+    tbody { display: table-row-group !important; }
+    tfoot { display: table-footer-group !important; }
+    tr { display: table-row !important; }
+    td, th { display: table-cell !important; }
+    
+    // Optimiser les en-têtes
+    thead th {
+        background-color: #f0f0f0 !important;
+        font-weight: bold !important;
+        font-size: 10px !important;
+    }
+    
+    // Forcer le contenu principal seulement
+    #timetable-print {
+        page-break-inside: avoid !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
+
+/* Styles spéciaux pour l'arabe en mode PDF */
+.force-arabic-fonts {
+    * {
+        font-family: 'Tahoma', 'Arial Unicode MS', 'Microsoft Sans Serif', Arial, sans-serif !important;
+        font-feature-settings: 'liga' off !important;
+        text-rendering: optimizeLegibility !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+    
+    // Améliorer le rendu du texte arabe
+    [dir="rtl"], .arabic-text {
+        direction: rtl !important;
+        unicode-bidi: embed !important;
+        text-align: center !important;
+        
+        // Espacement amélioré pour l'arabe
+        letter-spacing: 0.03em !important;
+        word-spacing: 0.15em !important;
+        line-height: 1.5 !important;
+        
+        // Padding pour éviter que le texte soit trop collé
+        padding: 4px 6px !important;
+    }
+    
+    // Cellules contenant de l'arabe
+    td, th {
+        &:has(.arabic-text), &[dir="rtl"] {
+            padding: 8px !important;
+            vertical-align: middle !important;
+            text-align: center !important;
+        }
+    }
+}
+
+/* Mode PDF avec optimisations arabe */
+.pdf-mode {
+    .force-arabic-fonts {
+        // Forcer la taille de police pour une meilleure lisibilité
+        font-size: 12px !important;
+        
+        // Réduire les effets visuels qui posent problème
+        text-shadow: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        
+        // Simplifier les bordures
+        table, td, th {
+            border: 1px solid #000 !important;
+            border-collapse: collapse !important;
+        }
+    }
+}
+
+/* Styles pour la vue globale */
+.global-view-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: #666;
+    
+    p {
+        margin: 0;
+        font-weight: 500;
+    }
+}
+
+.global-options {
+    margin: 15px 0;
+    display: flex;
+    gap: 20px;
+    
+    label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        
+        input[type="radio"] {
+            cursor: pointer;
+        }
+    }
+}
+
+.global-table {
+    width: 100%;
+    border-collapse: separate; /* Changé de collapse à separate pour forcer les bordures */
+    border-spacing: 0; /* Pas d'espacement entre les cellules */
+    font-size: 11px;
+    table-layout: auto; /* Ajustement automatique des colonnes au contenu */
+    
+    th, td {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: center;
+        vertical-align: middle;
+        min-width: 50px;
+        white-space: normal; /* Permettre le retour à la ligne */
+        word-wrap: break-word; /* Couper les mots trop longs si nécessaire */
+        overflow-wrap: break-word; /* Compatibilité */
+        
+        // Style pour les cellules fusionnées (rowspan > 1)
+        &[rowspan] {
+            border: 2px solid #000; /* Bordure plus épaisse pour les cellules fusionnées */
+            background-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(0, 0, 0, 0.02) 100%
+            ); /* Légère ombre pour distinction visuelle */
+        }
+        
+        &.row-header {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            min-width: 120px;
+            max-width: 180px;
+            writing-mode: horizontal-tb;
+            white-space: normal;
+            word-break: normal;
+            padding: 8px;
+        }
+        
+        &.day-header {
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 8px 4px;
+            white-space: nowrap; /* Pas de retour à la ligne pour les jours */
+        }
+        
+        &.period-header {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 6px 4px;
+            white-space: nowrap; /* Pas de retour à la ligne pour les périodes */
+        }
+        
+        &.slot-number-header {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            font-size: 10px;
+            padding: 4px;
+            min-width: 80px; /* Augmenté pour plus d'espace */
+            white-space: nowrap;
+        }
+        
+        &.time-header {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            font-size: 10px;
+            line-height: 1.2;
+            padding: 6px 4px;
+            white-space: nowrap;
+        }
+    }
+    
+    .cell-entry {
+        font-size: 10px;
+        padding: 3px;
+        line-height: 1.5; /* Meilleur espacement entre les lignes */
+        word-break: normal; /* Ne pas couper arbitrairement les mots */
+        overflow-wrap: normal; /* Conserver les mots entiers */
+        white-space: normal; /* Permettre le retour à la ligne naturel */
+        
+        strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 10px;
+            color: #000;
+            word-break: normal;
+            white-space: normal;
+            line-height: 1.3;
+        }
+        
+        .subject {
+            font-size: 9px;
+            color: #333;
+            margin-bottom: 2px;
+            word-break: normal;
+            white-space: normal;
+            line-height: 1.3;
+        }
+        
+        .room {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+            word-break: normal;
+            white-space: nowrap; /* Les salles restent sur une ligne (ex: S11) */
+        }
+        
+        .entry-separator {
+            margin: 4px 0;
+            border: none;
+            border-top: 1px dashed #999;
+        }
+    }
+    
+    .empty-cell {
+        background: #e0e0e0 !important; /* Gris pour toutes les cellules vides */
+        background-image: none !important; /* Pas de motif */
+        color: #000 !important;
+        border: 1px solid #000 !important; /* Forcer les bordures pour les cellules vides */
+    }
+    
+    /* Nettoyer les images de fond pour les cellules vides */
+    td:empty,
+    td:not(:has(div)),
+    td:not(:has(*)) {
+        background-image: none;
+    }
+    
+    /* Nettoyer images de fond pour cellules avec contenu vide */
+    td:has(> .cell-entry > strong:empty:only-child),
+    td:has(> .cell-entry > div:empty),
+    td:has(> div:empty),
+    td:has(> .cell-entry:empty),
+    td:has(> .cell-entry > div:has(> strong:empty):has(> .subject:empty)) {
+        background-image: none;
+    }
+    
+    /* Cacher les div qui contiennent seulement des éléments vides */
+    td div:has(> .cell-entry > strong:empty:only-child),
+    td div:has(> .cell-entry > div:empty),
+    td div:has(> .cell-entry:empty),
+    td .cell-entry:empty,
+    /* Vue globale : cacher .cell-entry qui contient div avec strong vide + div.subject vide */
+    td .cell-entry:has(> div:has(> strong:empty):has(> .subject:empty)) {
+        display: none !important;
+    }
+    
+    /* Cacher les strong vides et div.subject vides */
+    td strong:empty,
+    td .subject:empty {
+        display: none !important;
+    }
+    
+    .vertical-header {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        padding: 10px 8px;
+        font-weight: bold;
+    }
+}
+
+/* Force empty cell color with highest specificity to override other rules
+   Les cellules vides utilisent la couleur grise définie par l'utilisateur via la palette */
+.timetable table td.empty-cell,
+td.empty-cell {
+    /* La couleur de fond est maintenant appliquée via style inline depuis la palette */
+    background-image: none;
+    color: #000000; /* texte lisible sur fond gris */
+}
+
+/* Force gris pour toutes les cellules vides (sans div interne) */
+.timetable table td:empty,
+.timetable table td:not(:has(div)) {
+    background-image: none;
+}
+
+/* Forcer gris sur TOUTES les td qui contiennent seulement des balises vides */
+.timetable table td:has(> div > .cell-entry > strong.group-name:empty:only-child) {
+    background-image: none;
+}
+
+/* Cacher les div qui contiennent seulement des éléments vides */
+.timetable table td div:has(> .cell-entry > strong.group-name:empty:only-child) {
+    display: none !important;
+}
+
+/* Ensure cell content retains its own background when a cell is not empty.
+   This prevents an inner element from being forced transparent by generic rules. */
+.timetable table td .cell-entry {
+    background: transparent !important;
+}
+
