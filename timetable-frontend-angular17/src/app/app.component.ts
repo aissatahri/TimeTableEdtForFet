@@ -87,14 +87,15 @@ import { LanguageService, Language } from './services/language.service';
       
       <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
         <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">
-          {{ currentLanguage === 'fr' ? 'Ou envoyez votre don via :' : 'أو أرسل تبرعك عبر :' }}
+          {{ currentLanguage === 'fr' ? 'Envoyez votre don via :' : 'أرسل تبرعك عبر :' }}
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-          <div style="padding: 12px 20px; background: white; border-radius: 6px; border: 1px solid #ddd; font-size: 14px; font-weight: 600; color: #333; width: fit-content; direction: ltr;">
-            📱 <span style="color: #667eea; font-family: monospace;">+212 639 948 246</span>
-          </div>
+          <a href="https://www.paypal.com/paypalme/aissatahri" target="_blank" style="padding: 12px 30px; background: #0070ba; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: all 0.3s;">
+            <span style="font-size: 20px;">💳</span>
+            <span>{{ currentLanguage === 'fr' ? 'Faire un don via PayPal' : 'تبرع عبر PayPal' }}</span>
+          </a>
           <div style="padding: 12px 20px; background: white; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; font-weight: 600; color: #333; max-width: 100%; overflow-x: auto; direction: ltr;">
-            💳 <span style="color: #667eea; font-family: monospace;">157 570 2111180350290005 25</span>
+            💳 <span style="color: #667eea;">RIB:</span> <span style="color: #667eea; font-family: monospace;">157 570 2111180350290005 25</span>
           </div>
         </div>
       </div>
@@ -110,7 +111,7 @@ import { LanguageService, Language } from './services/language.service';
     <app-school-config *ngIf="showView === 'school-config'" (close)="showView = 'timetable'"></app-school-config>
   </main>
   <footer class="app-footer no-print">
-    <span>&copy; 2025 - Emplois du temps</span>
+    <span>&copy; 2025 - Emplois du temps - Développé par <strong>TAHRI Aissa</strong></span>
   </footer>
   `
 })
@@ -205,8 +206,8 @@ export class AppComponent {
   
   donate(amount: number) {
     const message = this.currentLanguage === 'fr' 
-      ? `Merci pour votre don de ${amount} DH !\n\nVeuillez envoyer votre don via :\n📱 +212 639 948 246\n💳 RIB: 157 570 2111180350290005 25\n\nMerci pour votre soutien ! 🙏`
-      : `شكرا على تبرعك ب ${amount} درهم!\n\nيرجى إرسال تبرعك عبر:\n📱 +212 639 948 246\n💳 RIB: 157 570 2111180350290005 25\n\nشكرا لدعمك! 🙏`;
+      ? `Merci pour votre don de ${amount} DH !\n\nVeuillez envoyer votre don via :\n� PayPal: paypal.me/aissatahri\n💳 RIB: 157 570 2111180350290005 25\n\nMerci pour votre soutien ! 🙏`
+      : `شكرا على تبرعك ب ${amount} درهم!\n\nيرجى إرسال تبرعك عبر:\n� PayPal: paypal.me/aissatahri\n💳 RIB: 157 570 2111180350290005 25\n\nشكرا لدعمك! 🙏`;
     
     alert(message);
     this.showDonationModal = false;
