@@ -68,21 +68,10 @@ import { LanguageService, Language } from './services/language.service';
         <p style="color: #666; margin: 0; font-size: 15px;" [innerHTML]="getDonationMessage()"></p>
       </div>
       
-      <div style="margin-bottom: 25px;">
-        <h3 style="font-size: 16px; color: #555; margin-bottom: 15px; text-align: center;">
-          {{ currentLanguage === 'fr' ? 'Choisissez votre montant :' : 'اختر المبلغ :' }}
-        </h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-          <button (click)="donate(50)" style="padding: 15px; border: 2px solid #667eea; border-radius: 8px; background: white; cursor: pointer; font-size: 16px; font-weight: 600; color: #667eea; transition: all 0.3s;">
-            50 DH
-          </button>
-          <button (click)="donate(100)" style="padding: 15px; border: 2px solid #667eea; border-radius: 8px; background: white; cursor: pointer; font-size: 16px; font-weight: 600; color: #667eea; transition: all 0.3s;">
-            100 DH
-          </button>
-          <button (click)="donate(200)" style="padding: 15px; border: 2px solid #667eea; border-radius: 8px; background: white; cursor: pointer; font-size: 16px; font-weight: 600; color: #667eea; transition: all 0.3s;">
-            200 DH
-          </button>
-        </div>
+            <div class="donation-amounts">
+        <button class="amount-btn" (click)="donate(10)">10 DH</button>
+        <button class="amount-btn" (click)="donate(20)">20 DH</button>
+        <button class="amount-btn" (click)="donate(50)">50 DH</button>
       </div>
       
       <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
