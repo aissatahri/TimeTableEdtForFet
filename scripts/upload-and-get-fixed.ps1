@@ -3,11 +3,10 @@
 # Usage: edit the three paths below, then run from PowerShell:
 #   powershell -ExecutionPolicy Bypass -NoExit -File "C:\Users\Aissa\...\scripts\upload-and-get-fixed.ps1"
 
-# --- Configure file paths here (MODIFY THESE) ---
-$teachersPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\teachers.xml"
-$subgroupsPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\subgroups.xml"
-$activitiesPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\activities.xml"
-
+# Remplacez ces chemins par vos fichiers réels
+$teachersPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_activities.xml"
+$subgroupsPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_subgroups.xml"
+$activitiesPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_activities.xml"
 # Vérifier que les fichiers existent
 if (!(Test-Path $teachersPath)) { Write-Host "teachers.xml introuvable :" $teachersPath; exit 1 }
 if (!(Test-Path $subgroupsPath)) { Write-Host "subgroups.xml introuvable :" $subgroupsPath; exit 1 }
@@ -41,13 +40,13 @@ $uriTeachers = "https://timetableedtforfet-production.up.railway.app/api/teacher
 $multipart = New-Object System.Net.Http.MultipartFormDataContent
 
 function Add-FileToMultipart([string]$path, [string]$fieldName) {
+    # Lire le fichier en tant que tableau d'octets
     $bytes = [System.IO.File]::ReadAllBytes($path)
-    $content = New-Object System.Net.Http.ByteArrayContent($bytes)
-    $disposition = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
-    $disposition.Name = '"' + $fieldName + '"'
-    $disposition.FileName = '"' + [System.IO.Path]::GetFileName($path) + '"'
-    $content.Headers.ContentDisposition = $disposition
-    $multipart.Add($content)
+    # Utiliser le constructeur statique pour éviter que PowerShell n'expande le tableau en plusieurs arguments
+    $content = [System.Net.Http.ByteArrayContent]::new($bytes)
+    # Ajouter au multipart en précisant le nom du champ et le nom de fichier — la méthode Add va définir Content-Disposition correctement
+    $filename = [System.IO.Path]::GetFileName($path)
+    $multipart.Add($content, $fieldName, $filename)
 }
 
 Add-FileToMultipart $teachersPath "teachersXml"
