@@ -391,8 +391,10 @@ public class TimetableController {
     }
 
     @GetMapping("/classes/{name}/subgroups")
-    public List<String> getSubgroupsForClass(@PathVariable("name") String name, HttpSession session) {
-        UserData userData = getUserData(session);
+    public List<String> getSubgroupsForClass(@PathVariable("name") String name, 
+                                              HttpSession session,
+                                              @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         // Return full subgroup identifiers (e.g. "3APIC-5:G1") that belong to the sanitized class name
         String target = sanitizeClassName(name);
         return userData.subgroups.keySet().stream()
@@ -405,8 +407,10 @@ public class TimetableController {
     }
 
     @GetMapping(value = "/timetable/teacher/{name}", produces = "application/json")
-    public List<Map<String,Object>> timetableForTeacher(@PathVariable("name") String name, HttpSession session) {
-        UserData userData = getUserData(session);
+    public List<Map<String,Object>> timetableForTeacher(@PathVariable("name") String name, 
+                                                         HttpSession session,
+                                                         @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         // Convertir le nom renommé en nom original si nécessaire
         String originalName = findOriginalTeacherName(name, userData);
         
@@ -704,9 +708,10 @@ public class TimetableController {
         @PathVariable("name") String name,
         @RequestParam(value = "labelMode", defaultValue = "diff") String labelMode,
         @RequestParam(value = "labelSubjects", required = false) String labelSubjects,
-        HttpSession session
+        HttpSession session,
+        @RequestHeader(value = "X-Session-ID", required = false) String sessionId
     ) {
-        UserData userData = getUserData(session);
+        UserData userData = getUserData(session, sessionId);
         List<Map<String,Object>> res = new ArrayList<>();
 
         // Find all subgroups that match the (sanitized) class name (exclude automatic subgroups)
@@ -880,8 +885,9 @@ public class TimetableController {
     }
 
     @GetMapping(value = "/rooms/vacant", produces = "application/json")
-    public List<Map<String,Object>> listVacantRooms(HttpSession session) {
-        UserData userData = getUserData(session);
+    public List<Map<String,Object>> listVacantRooms(HttpSession session,
+                                                     @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         // Collect all rooms seen anywhere (from both subgroups and teachers)
         Set<String> allRooms = new TreeSet<>();
         // From subgroups file
@@ -1103,8 +1109,10 @@ public class TimetableController {
      * Récupère l'emploi du temps d'une salle spécifique
      */
     @GetMapping(value = "/timetable/room/{name}", produces = "application/json")
-    public List<Map<String,Object>> timetableForRoom(@PathVariable("name") String roomName, HttpSession session) {
-        UserData userData = getUserData(session);
+    public List<Map<String,Object>> timetableForRoom(@PathVariable("name") String roomName, 
+                                                      HttpSession session,
+                                                      @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         // Trouver le nom original de la salle (si c'est un nom renommé)
         String originalRoomName = findOriginalRoomName(roomName, userData);
         
