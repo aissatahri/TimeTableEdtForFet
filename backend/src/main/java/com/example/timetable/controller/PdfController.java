@@ -35,10 +35,12 @@ public class PdfController {
      * Générer PDF pour un professeur
      */
     @GetMapping("/teacher/{name}")
-    public ResponseEntity<Resource> generateTeacherPdf(@PathVariable("name") String name, HttpSession session) {
+    public ResponseEntity<Resource> generateTeacherPdf(@PathVariable("name") String name, 
+                                                        HttpSession session,
+                                                        @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
         try {
             // Récupérer les données d'emploi du temps
-            List<Map<String, Object>> timetableData = timetableController.timetableForTeacher(name, session);
+            List<Map<String, Object>> timetableData = timetableController.timetableForTeacher(name, session, sessionId);
             
             if (timetableData == null || timetableData.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -77,10 +79,11 @@ public class PdfController {
             @PathVariable("name") String name,
             @RequestParam(value = "labelMode", defaultValue = "diff") String labelMode,
             @RequestParam(value = "labelSubjects", required = false) String labelSubjects,
-            HttpSession session) {
+            HttpSession session,
+            @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
         try {
             // Récupérer les données d'emploi du temps
-            List<Map<String, Object>> timetableData = timetableController.timetableForSubgroup(name, labelMode, labelSubjects, session);
+            List<Map<String, Object>> timetableData = timetableController.timetableForSubgroup(name, labelMode, labelSubjects, session, sessionId);
             
             if (timetableData == null || timetableData.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -112,10 +115,11 @@ public class PdfController {
      * Générer PDF des salles vacantes
      */
     @GetMapping("/vacant-rooms")
-    public ResponseEntity<Resource> generateVacantRoomsPdf(HttpSession session) {
+    public ResponseEntity<Resource> generateVacantRoomsPdf(HttpSession session,
+                                                            @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
         try {
             // Récupérer les données des salles vacantes
-            List<Map<String, Object>> vacantData = timetableController.listVacantRooms(session);
+            List<Map<String, Object>> vacantData = timetableController.listVacantRooms(session, sessionId);
             
             if (vacantData == null || vacantData.isEmpty()) {
                 return ResponseEntity.notFound().build();
