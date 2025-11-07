@@ -517,8 +517,20 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
         this.subgroupsForClass = [];
         this.initializeGrid();
         
-        // 2️⃣ Load rooms separately (teachers/classes already loaded from upload response)
-        // Only load rooms since they're not in upload response
+        // 2️⃣ Load teachers by subject for dropdown (needs structured data)
+        this.api.getTeachers().subscribe({
+          next: teachersBySubj => {
+            if (teachersBySubj && typeof teachersBySubj === 'object') {
+              this.teachersBySubject = teachersBySubj;
+              // Also update flat list for compatibility
+              this.teachers = Object.values(teachersBySubj).flat().filter(t => typeof t === 'string');
+              console.log('✅ Teachers by subject loaded:', Object.keys(teachersBySubj).length, 'subjects');
+            }
+          },
+          error: () => console.warn('⚠️ getTeachers call failed')
+        });
+        
+        // 3️⃣ Load rooms separately
         this.api.getRooms().subscribe({
           next: list => {
             if (Array.isArray(list)) {
