@@ -36,7 +36,11 @@ class UserData {
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(
-    origins = "http://localhost:4200",
+    origins = {
+        "http://localhost:4200",
+        "https://astonishing-charm-production.up.railway.app",
+        "http://localhost:8081"
+    },
     allowedHeaders = "*",
     methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, 
                RequestMethod.DELETE, RequestMethod.OPTIONS},

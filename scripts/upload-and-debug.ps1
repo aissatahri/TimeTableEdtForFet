@@ -1,10 +1,10 @@
 # upload-and-debug.ps1
 # Script complet : upload + GET /api/teachers + GET /api/debug/sessions (tous en une seule session)
 
-# --- Modifier les chemins ici si besoin ---
-$teachersPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\teachers.xml"
-$subgroupsPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\subgroups.xml"
-$activitiesPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\activities.xml"
+# Remplacez ces chemins par vos fichiers réels
+$teachersPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_teachers.xml"
+$subgroupsPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_subgroups.xml"
+$activitiesPath = "D:\fet-2026\Hjira-result-01\timetables\Fet_24692N_2A_18_Ar_result-single\Fet_24692N_2A_18_Ar_result_activities.xml"
 
 # Vérifier que les fichiers existent
 if (!(Test-Path $teachersPath)) { Write-Host "❌ teachers.xml introuvable :" $teachersPath; exit 1 }

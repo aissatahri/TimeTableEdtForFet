@@ -417,17 +417,46 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
   loadLists() {
     this.api.getTeachers().subscribe({ 
       next: list => {
-        this.teachersBySubject = list;
-        // Créer une liste plate de tous les professeurs pour la compatibilité
-        this.teachers = Object.values(list).flat();
+        if (!list) {
+          console.warn('⚠️ getTeachers returned null/undefined');
+          return;
+        }
+        // Si c'est un objet avec des clés (structure par matière)
+        if (typeof list === 'object' && !Array.isArray(list)) {
+          this.teachersBySubject = list;
+          this.teachers = Object.values(list).flat().filter(t => typeof t === 'string');
+          console.log('✅ Teachers loaded (by subject):', this.teachers.length);
+        } 
+        // Si c'est un array direct
+        else if (Array.isArray(list)) {
+          this.teachers = list;
+          this.teachersBySubject = {};
+          console.log('✅ Teachers loaded (flat array):', this.teachers.length);
+        }
       }, 
-      error: () => console.warn('Backend not reachable at http://localhost:8081') 
+      error: () => {
+        console.warn('⚠️ getTeachers call failed - lists may be empty');
+      }
     });
+    
     this.api.getSubgroups().subscribe({
-      next: list => this.subgroups = list
+      next: list => {
+        if (Array.isArray(list)) {
+          this.subgroups = list;
+          console.log('✅ Subgroups loaded:', this.subgroups.length);
+        }
+      },
+      error: () => console.warn('⚠️ getSubgroups call failed')
     });
+    
     this.api.getRooms().subscribe({
-      next: list => this.rooms = list
+      next: list => {
+        if (Array.isArray(list)) {
+          this.rooms = list;
+          console.log('✅ Rooms loaded:', this.rooms.length);
+        }
+      },
+      error: () => console.warn('⚠️ getRooms call failed')
     });
   }
   initializeGrid() {
@@ -468,10 +497,19 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
   this.api.uploadFiles(this.teacherFile||null,this.subgroupFile||null,this.activitiesFile||null).subscribe({
       next: (res: any) => { 
         this.loading = false;
-        // update local lists from backend response when available
-        if(res?.teachers) this.teachers = res.teachers;
-        if(res?.classes) this.subgroups = res.classes; // classes list without suffix
-        if(res?.subgroups) console.log('Detected subgroups:', res.subgroups);
+        
+        // 1️⃣ UPDATE LOCAL LISTS DIRECTLY FROM UPLOAD RESPONSE (most reliable)
+        if(res?.teachers && Array.isArray(res.teachers)) {
+          this.teachers = res.teachers;
+          console.log('✅ Teachers updated from upload response:', this.teachers.length);
+        }
+        if(res?.classes && Array.isArray(res.classes)) {
+          this.subgroups = res.classes; // classes list without suffix
+          console.log('✅ Classes updated from upload response:', this.subgroups.length);
+        }
+        if(res?.subgroups && Array.isArray(res.subgroups)) {
+          console.log('✅ Detected subgroups:', res.subgroups.length);
+        }
         
         // Réinitialiser l'affichage pour éviter les conflits visuels
         this.selectedTeacher = '';
@@ -479,7 +517,7 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
         this.subgroupsForClass = [];
         this.initializeGrid();
         
-        // Recharger les listes depuis l'API
+        // 2️⃣ THEN reload lists from API (to get full data with rooms, etc)
         this.loadLists();
         
         // Marquer comme chargé avec succès

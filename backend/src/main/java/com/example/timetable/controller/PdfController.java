@@ -15,7 +15,14 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/pdf")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(
+    origins = {
+        "http://localhost:4200",
+        "https://astonishing-charm-production.up.railway.app",
+        "http://localhost:8081"
+    },
+    allowCredentials = "true"
+)
 public class PdfController {
 
     @Autowired
