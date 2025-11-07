@@ -214,25 +214,16 @@ public class TimetableController {
         
         // Parser les fichiers XML
         if(teachersXml != null) {
-            System.out.println("  [DEBUG] teachersXml received: size=" + teachersXml.getSize() + ", name=" + teachersXml.getOriginalFilename());
             userData.teachers = TimetableParser.parseTeachers(teachersXml.getInputStream());
             System.out.println("  ✓ Professeurs parsés: " + userData.teachers.size());
-        } else {
-            System.out.println("  [DEBUG] teachersXml is NULL");
         }
         if(subgroupsXml != null) {
-            System.out.println("  [DEBUG] subgroupsXml received: size=" + subgroupsXml.getSize() + ", name=" + subgroupsXml.getOriginalFilename());
             userData.subgroups = TimetableParser.parseSubgroups(subgroupsXml.getInputStream());
             System.out.println("  ✓ Sous-groupes parsés: " + userData.subgroups.size());
-        } else {
-            System.out.println("  [DEBUG] subgroupsXml is NULL");
         }
         if(activitiesXml != null) {
-            System.out.println("  [DEBUG] activitiesXml received: size=" + activitiesXml.getSize() + ", name=" + activitiesXml.getOriginalFilename());
             userData.activities = TimetableParser.parseActivities(activitiesXml.getInputStream());
             System.out.println("  ✓ Activités parsées: " + userData.activities.size());
-        } else {
-            System.out.println("  [DEBUG] activitiesXml is NULL");
         }
         
         // Sauvegarder les fichiers dans le dossier de session
