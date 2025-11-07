@@ -171,6 +171,35 @@ public class TimetableController {
         return renamedOrOriginal;
     }
 
+    /**
+     * Endpoint debug : lister toutes les sessions actives avec le nombre de profs/subgroups/activities
+     * Utile pour diagnostiquer les problèmes de parsing
+     */
+    @GetMapping("/debug/sessions")
+    public ResponseEntity<?> debugSessions() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        List<Map<String, Object>> sessions = new ArrayList<>();
+        
+        for (Map.Entry<String, UserData> entry : userSessions.entrySet()) {
+            Map<String, Object> sessionInfo = new LinkedHashMap<>();
+            String sessionId = entry.getKey();
+            UserData data = entry.getValue();
+            
+            sessionInfo.put("sessionId", sessionId);
+            sessionInfo.put("teachersCount", data.teachers.size());
+            sessionInfo.put("subgroupsCount", data.subgroups.size());
+            sessionInfo.put("activitiesCount", data.activities.size());
+            sessionInfo.put("hasData", data.hasData());
+            
+            sessions.add(sessionInfo);
+        }
+        
+        result.put("activeSessions", sessions.size());
+        result.put("sessions", sessions);
+        
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<?> upload(@RequestParam(required=false) MultipartFile teachersXml,
                                     @RequestParam(required=false) MultipartFile subgroupsXml,
