@@ -83,15 +83,18 @@ const TRANSLATIONS: Record<Language, Translations> = {
   providedIn: 'root'
 })
 export class LanguageService {
-  private currentLanguageSubject = new BehaviorSubject<Language>('fr');
+  private currentLanguageSubject = new BehaviorSubject<Language>('ar');
   public currentLanguage$ = this.currentLanguageSubject.asObservable();
 
   constructor() {
-    // Charger la langue sauvegardée ou utiliser le français par défaut
+    // Charger la langue sauvegardée ou utiliser l'arabe par défaut
     const saved = localStorage.getItem('language') as Language;
     if (saved === 'ar' || saved === 'fr') {
       this.currentLanguageSubject.next(saved);
       this.updateDirection(saved);
+    } else {
+      // Si aucune langue sauvegardée, utiliser l'arabe par défaut
+      this.updateDirection('ar');
     }
   }
 
