@@ -504,15 +504,27 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
           console.log('✅ Session ID stored:', res.sessionId);
         }
         
-        // 1️⃣ UPDATE LOCAL LISTS DIRECTLY FROM UPLOAD RESPONSE (most reliable)
+        // 1️⃣ UPDATE ALL LISTS DIRECTLY FROM UPLOAD RESPONSE (no additional API calls needed!)
         if(res?.teachers && Array.isArray(res.teachers)) {
           this.teachers = res.teachers;
           console.log('✅ Teachers updated from upload response:', this.teachers.length);
         }
+        
+        if(res?.teachersBySubject && typeof res.teachersBySubject === 'object') {
+          this.teachersBySubject = res.teachersBySubject;
+          console.log('✅ Teachers by subject from upload:', Object.keys(res.teachersBySubject).length, 'subjects');
+        }
+        
+        if(res?.rooms && Array.isArray(res.rooms)) {
+          this.rooms = res.rooms;
+          console.log('✅ Rooms from upload:', res.rooms.length);
+        }
+        
         if(res?.classes && Array.isArray(res.classes)) {
           this.subgroups = res.classes; // classes list without suffix
           console.log('✅ Classes updated from upload response:', this.subgroups.length);
         }
+        
         if(res?.subgroups && Array.isArray(res.subgroups)) {
           console.log('✅ Detected subgroups:', res.subgroups.length);
         }
@@ -522,30 +534,6 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
         this.selectedSubgroup = '';
         this.subgroupsForClass = [];
         this.initializeGrid();
-        
-        // 2️⃣ Load teachers by subject for dropdown (needs structured data)
-        this.api.getTeachers().subscribe({
-          next: teachersBySubj => {
-            if (teachersBySubj && typeof teachersBySubj === 'object') {
-              this.teachersBySubject = teachersBySubj;
-              // Also update flat list for compatibility
-              this.teachers = Object.values(teachersBySubj).flat().filter(t => typeof t === 'string');
-              console.log('✅ Teachers by subject loaded:', Object.keys(teachersBySubj).length, 'subjects');
-            }
-          },
-          error: () => console.warn('⚠️ getTeachers call failed')
-        });
-        
-        // 3️⃣ Load rooms separately
-        this.api.getRooms().subscribe({
-          next: list => {
-            if (Array.isArray(list)) {
-              this.rooms = list;
-              console.log('✅ Rooms loaded:', this.rooms.length);
-            }
-          },
-          error: () => console.warn('⚠️ getRooms call failed')
-        });
         
         // Marquer comme chargé avec succès
         this.dataLoaded = true;

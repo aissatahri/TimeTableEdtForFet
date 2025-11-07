@@ -244,6 +244,52 @@ public class TimetableController {
         
         // Build response with detected lists so frontend can display immediately
         List<String> teacherList = new ArrayList<>(userData.teachers.keySet());
+        
+        // Build teachers by subject (for dropdown)
+        Map<String, Set<String>> subjectTeachers = new TreeMap<>();
+        for (var teacher : userData.teachers.entrySet()) {
+            String teacherName = teacher.getKey();
+            String renamedTeacherName = applyTeacherMapping(teacherName, userData);
+            for (var day : teacher.getValue().values()) {
+                for (var hour : day.values()) {
+                    Map<String, String> slot = hour;
+                    if (slot != null && slot.containsKey("subject")) {
+                        String subject = slot.getOrDefault("subject", "").trim();
+                        if (!subject.isEmpty()) {
+                            subjectTeachers.computeIfAbsent(subject, k -> new TreeSet<>()).add(renamedTeacherName);
+                        }
+                    }
+                }
+            }
+        }
+        Map<String, List<String>> teachersBySubject = new TreeMap<>();
+        for (Map.Entry<String, Set<String>> entry : subjectTeachers.entrySet()) {
+            teachersBySubject.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+        
+        // Collect all rooms
+        Set<String> allRoomsOriginal = new TreeSet<>();
+        for (var sgSchedule : userData.subgroups.values()) {
+            for (var dayEntry : sgSchedule.entrySet()) {
+                for (var hourEntry : dayEntry.getValue().entrySet()) {
+                    String room = hourEntry.getValue().getOrDefault("room", "").trim();
+                    if (!room.isEmpty()) allRoomsOriginal.add(room);
+                }
+            }
+        }
+        for (var tSchedule : userData.teachers.values()) {
+            for (var dayEntry : tSchedule.entrySet()) {
+                for (var hourEntry : dayEntry.getValue().entrySet()) {
+                    String room = hourEntry.getValue().getOrDefault("room", "").trim();
+                    if (!room.isEmpty()) allRoomsOriginal.add(room);
+                }
+            }
+        }
+        List<String> roomsList = allRoomsOriginal.stream()
+            .map(r -> applyRoomMapping(r, userData))
+            .sorted()
+            .toList();
+        
         // classes (without subgroup suffix), sanitize to hide placeholder terms
         Set<String> classes = new HashSet<>();
         for (String sgKey : userData.subgroups.keySet()) {
@@ -259,11 +305,14 @@ public class TimetableController {
         Map<String,Object> resp = new HashMap<>();
         resp.put("status","ok");
         resp.put("teachers", teacherList);
+        resp.put("teachersBySubject", teachersBySubject);  // ← NEW!
+        resp.put("rooms", roomsList);                      // ← NEW!
         resp.put("classes", classList);
         resp.put("subgroups", subgroupList);
-        resp.put("sessionId", sessionId); // Pour info
+        resp.put("sessionId", sessionId);
         
         System.out.println("✅ Upload terminé pour session: " + sessionId);
+        System.out.println("  → Teachers: " + teacherList.size() + ", By subject: " + teachersBySubject.size() + " subjects, Rooms: " + roomsList.size());
         return ResponseEntity.ok(resp);
     }
     
