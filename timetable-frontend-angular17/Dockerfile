@@ -12,14 +12,14 @@ RUN npm ci --legacy-peer-deps
 # Copier le code source
 COPY . .
 
-# Build de production
-RUN npm run build -- --configuration production
+# Build de production (Angular 17 n'a pas de config 'production' par défaut)
+RUN npm run build
 
 # Serveur nginx pour servir l'application
 FROM nginx:alpine
 
-# Copier les fichiers buildés
-COPY --from=build /app/dist/timetable-frontend /usr/share/nginx/html
+# Copier les fichiers buildés (utiliser le bon chemin)
+COPY --from=build /app/dist/timetable-frontend/browser /usr/share/nginx/html
 
 # Configuration nginx personnalisée
 COPY nginx.conf /etc/nginx/conf.d/default.conf
