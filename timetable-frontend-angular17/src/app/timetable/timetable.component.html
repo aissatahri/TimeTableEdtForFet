@@ -175,7 +175,11 @@
     <span *ngIf="viewMode === 'teachers' && selectedTeacher">
       {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - ' : 'التوزيع الأسبوعي - ' }}
       <strong>{{selectedTeacher}}</strong>
-      <span *ngIf="lang.getCurrentLanguage() === 'ar'"> - أستاذ(ة) مادة اللغة العربية</span>
+      <span *ngIf="lang.getCurrentLanguage() === 'ar'">
+        <ng-container *ngFor="let subject of getTeacherSubjects(selectedTeacher); let i = index">
+          {{ i === 0 ? ' - أستاذ(ة) مادة ' : ' و ' }}{{ subject }}
+        </ng-container>
+      </span>
     </span>
     <span *ngIf="viewMode === 'subgroups' && selectedSubgroup">
       {{ lang.getCurrentLanguage() === 'fr' ? 'Emploi du temps - ' : 'التوزيع الأسبوعي - ' }}

@@ -970,6 +970,20 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
     // Construire la matrice avec fusion verticale
     this.buildCellMatrixWithRowSpan();
   }
+  
+  /**
+   * Get subjects taught by a teacher
+   */
+  getTeacherSubjects(teacherName: string): string[] {
+    const subjects: string[] = [];
+    for (const [subject, teachers] of Object.entries(this.teachersBySubject)) {
+      if (teachers.includes(teacherName)) {
+        subjects.push(subject);
+      }
+    }
+    return subjects;
+  }
+  
   showTimetable() { 
     if (this.viewMode === 'teachers' && this.selectedTeacher) {
       this.api.getTimetableForTeacher(this.selectedTeacher).subscribe(slots => {
