@@ -517,8 +517,17 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
         this.subgroupsForClass = [];
         this.initializeGrid();
         
-        // 2️⃣ THEN reload lists from API (to get full data with rooms, etc)
-        this.loadLists();
+        // 2️⃣ Load rooms separately (teachers/classes already loaded from upload response)
+        // Only load rooms since they're not in upload response
+        this.api.getRooms().subscribe({
+          next: list => {
+            if (Array.isArray(list)) {
+              this.rooms = list;
+              console.log('✅ Rooms loaded:', this.rooms.length);
+            }
+          },
+          error: () => console.warn('⚠️ getRooms call failed')
+        });
         
         // Marquer comme chargé avec succès
         this.dataLoaded = true;
