@@ -86,17 +86,21 @@ public class TimetableParser {
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlStream);
         NodeList teachers = doc.getElementsByTagName("Teacher");
+        System.out.println("[parseTeachers] Found " + teachers.getLength() + " <Teacher> elements");
         for (int i=0;i<teachers.getLength();i++){
             Element t = (Element) teachers.item(i);
             String name = t.getAttribute("name");
             if(name==null || name.isEmpty()) name = t.getAttribute("id");
+            System.out.println("  [parseTeachers] Processing teacher: " + name);
             Map<String, Map<String, Map<String,String>>> schedule = new HashMap<>();
             NodeList days = t.getElementsByTagName("Day");
+            System.out.println("    [parseTeachers] Found " + days.getLength() + " <Day> elements for this teacher");
             for(int d=0; d<days.getLength(); d++){
                 Element day = (Element) days.item(d);
                 String dayName = day.getAttribute("name");
                 schedule.putIfAbsent(dayName, new HashMap<>());
                 NodeList hours = day.getElementsByTagName("Hour");
+                System.out.println("      [parseTeachers] Found " + hours.getLength() + " <Hour> elements for day: " + dayName);
                 for(int h=0; h<hours.getLength(); h++){
                     Element hour = (Element) hours.item(h);
                     String hourName = hour.getAttribute("name");
@@ -111,7 +115,9 @@ public class TimetableParser {
                 }
             }
             out.put(name, schedule);
+            System.out.println("  [parseTeachers] Finished processing teacher: " + name + " (total slots: " + schedule.values().stream().mapToLong(Map::size).sum() + ")");
         }
+        System.out.println("[parseTeachers] TOTAL: " + out.size() + " teachers parsed");
         return out;
     }
 
