@@ -24,7 +24,13 @@ COPY --from=build /app/dist/timetable-frontend /usr/share/nginx/html
 # Configuration nginx personnalisée
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exposer le port 80
-EXPOSE 80
+# Script pour utiliser le PORT de Railway
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/conf.d/default.conf' >> /start.sh && \
+    echo 'nginx -g "daemon off;"' >> /start.sh && \
+    chmod +x /start.sh
 
-CMD ["nginx", "-g", "daemon off;"]
+# Exposer le port (Railway utilise $PORT)
+EXPOSE $PORT
+
+CMD ["/start.sh"]
