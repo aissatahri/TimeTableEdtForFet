@@ -61,10 +61,19 @@ public class TimetableController {
 
     /**
      * Récupère les données de l'utilisateur courant (basé sur sa session)
+     * Supporte aussi un header X-Session-ID pour contourner les problèmes de cookies cross-domain
      */
-    private UserData getUserData(HttpSession session) {
-        String sessionId = session.getId();
+    private UserData getUserData(HttpSession session, @RequestHeader(value = "X-Session-ID", required = false) String headerSessionId) {
+        // Priorité au header X-Session-ID si présent
+        String sessionId = (headerSessionId != null && !headerSessionId.isEmpty()) 
+            ? headerSessionId 
+            : session.getId();
         return userSessions.computeIfAbsent(sessionId, k -> new UserData());
+    }
+    
+    // Surcharge pour compatibilité avec code existant
+    private UserData getUserData(HttpSession session) {
+        return getUserData(session, null);
     }
 
     /**
@@ -283,8 +292,9 @@ public class TimetableController {
     }
 
     @GetMapping("/teachers")
-    public Map<String, List<String>> listTeachers(HttpSession session) {
-        UserData userData = getUserData(session);
+    public Map<String, List<String>> listTeachers(HttpSession session,
+                                                   @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         
         // Créer un Map matière -> liste de professeurs (avec noms renommés)
         Map<String, Set<String>> subjectTeachers = new TreeMap<>();
@@ -319,8 +329,9 @@ public class TimetableController {
     }
     
     @GetMapping("/subgroups")
-    public List<String> listSubgroups(HttpSession session){
-        UserData userData = getUserData(session);
+    public List<String> listSubgroups(HttpSession session,
+                                      @RequestHeader(value = "X-Session-ID", required = false) String sessionId){
+        UserData userData = getUserData(session, sessionId);
         Set<String> classes = new HashSet<>();
         for (String sgKey : userData.subgroups.keySet()) {
             String base = extractClassBase(sgKey);
@@ -1002,8 +1013,9 @@ public class TimetableController {
      * Liste toutes les salles disponibles (avec renommage appliqué)
      */
     @GetMapping(value = "/rooms/list", produces = "application/json")
-    public List<String> listRooms(HttpSession session) {
-        UserData userData = getUserData(session);
+    public List<String> listRooms(HttpSession session,
+                                   @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
+        UserData userData = getUserData(session, sessionId);
         Set<String> allRoomsOriginal = new TreeSet<>();
         // Collecter toutes les salles depuis subgroups
         for (var sgSchedule : userData.subgroups.values()) {

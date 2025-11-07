@@ -498,6 +498,12 @@ export class TimetableComponent implements OnInit, AfterViewChecked {
       next: (res: any) => { 
         this.loading = false;
         
+        // 0️⃣ STORE SESSION ID in localStorage for cross-domain session persistence
+        if (res?.sessionId) {
+          localStorage.setItem('TIMETABLE_SESSION_ID', res.sessionId);
+          console.log('✅ Session ID stored:', res.sessionId);
+        }
+        
         // 1️⃣ UPDATE LOCAL LISTS DIRECTLY FROM UPLOAD RESPONSE (most reliable)
         if(res?.teachers && Array.isArray(res.teachers)) {
           this.teachers = res.teachers;
