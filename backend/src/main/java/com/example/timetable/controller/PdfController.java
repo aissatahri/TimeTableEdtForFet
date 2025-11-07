@@ -147,10 +147,11 @@ public class PdfController {
      * Générer PDF pour tous les professeurs (en lot)
      */
     @GetMapping("/all-teachers")
-    public ResponseEntity<Resource> generateAllTeachersPdf(HttpSession session) {
+    public ResponseEntity<Resource> generateAllTeachersPdf(HttpSession session,
+                                                            @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
         try {
             // Récupérer la liste des professeurs
-            Map<String, List<String>> teachersBySubject = timetableController.listTeachers(session);
+            Map<String, List<String>> teachersBySubject = timetableController.listTeachers(session, sessionId);
             List<String> allTeachers = new ArrayList<>();
             teachersBySubject.values().forEach(allTeachers::addAll);
             
@@ -173,10 +174,11 @@ public class PdfController {
      * Générer PDF pour toutes les classes (en lot)
      */
     @GetMapping("/all-subgroups")
-    public ResponseEntity<Resource> generateAllSubgroupsPdf(HttpSession session) {
+    public ResponseEntity<Resource> generateAllSubgroupsPdf(HttpSession session,
+                                                             @RequestHeader(value = "X-Session-ID", required = false) String sessionId) {
         try {
             // Récupérer la liste des classes
-            List<String> allSubgroups = timetableController.listSubgroups(session);
+            List<String> allSubgroups = timetableController.listSubgroups(session, sessionId);
             
             if (allSubgroups.isEmpty()) {
                 return ResponseEntity.notFound().build();
