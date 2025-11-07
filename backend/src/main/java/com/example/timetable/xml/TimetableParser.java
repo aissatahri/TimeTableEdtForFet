@@ -85,8 +85,25 @@ public class TimetableParser {
         Map<String, Map<String, Map<String, Map<String,String>>>> out = new HashMap<>();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(xmlStream);
+        
+        // Debug: afficher la structure racine du document
+        Element root = doc.getDocumentElement();
+        System.out.println("[parseTeachers] Root element: " + root.getTagName());
+        System.out.println("[parseTeachers] Root child count: " + root.getChildNodes().getLength());
+        
+        // Afficher les noms de balises des enfants directs
+        NodeList directChildren = root.getChildNodes();
+        System.out.println("[parseTeachers] Direct children (all node types):");
+        for (int i = 0; i < directChildren.getLength(); i++) {
+            Node n = directChildren.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                System.out.println("  - " + n.getNodeName());
+            }
+        }
+        
         NodeList teachers = doc.getElementsByTagName("Teacher");
-        System.out.println("[parseTeachers] Found " + teachers.getLength() + " <Teacher> elements");
+        System.out.println("[parseTeachers] Found " + teachers.getLength() + " <Teacher> elements via getElementsByTagName");
+        
         for (int i=0;i<teachers.getLength();i++){
             Element t = (Element) teachers.item(i);
             String name = t.getAttribute("name");
