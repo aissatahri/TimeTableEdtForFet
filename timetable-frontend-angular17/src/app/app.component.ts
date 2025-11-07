@@ -14,7 +14,7 @@ import { LanguageService, Language } from './services/language.service';
   <header class="app-header no-print" style="display: flex; align-items: center; justify-content: space-between;">
     <div style="display: flex; align-items: center; gap: 16px;">
       <button (click)="sidebarOpen=true" class="sidebar-toggle" style="font-size: 1.7em; background: none; border: none; color: #4676fa; cursor: pointer; margin-right: 4px;">☰</button>
-      <div class="brand" (click)="scrollTo('top')">Timetable</div>
+      <div class="brand" (click)="scrollTo('top')">TimeTableEdtForFet</div>
       <a href="#" (click)="$event.preventDefault(); openConfigModal()" class="config-btn-left" style="font-size: 18px; padding: 6px 16px; background: #4676fa; color: #fff; border-radius: 6px; text-decoration: none; font-weight: 500;">
         {{ currentLanguage === 'fr' ? '⚙️ Configuration' : '⚙️ الإعدادات' }}
       </a>
