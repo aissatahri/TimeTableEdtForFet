@@ -39,7 +39,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:4200",           // Local development
-            "https://astonishing-charm-production.up.railway.app",  // Railway frontend
+            "https://astonishing-charm-production.up.railway.app",  // Old Railway frontend
+            "https://timetable-edt-production.up.railway.app",      // New Railway frontend
             "http://localhost:8081"            // Local testing
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
